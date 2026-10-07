@@ -292,9 +292,12 @@
       const u = new SpeechSynthesisUtterance(text);
       u.lang = "ja-JP";
       u.rate = data.rate || 1;
-      u.pitch = data.pitch == null ? 1.4 : data.pitch;
+      let pitch = data.pitch == null ? 1.4 : data.pitch;
       const v = pickVoice();
       if (v) u.voice = v;
+      // 女の人の声しか無い端末では、高くしすぎると女の子っぽくなるので少しおさえる
+      if (v && !isMale(v)) pitch = Math.min(pitch, 1.1);
+      u.pitch = pitch;
       speechSynthesis.speak(u);
     }
 
@@ -307,7 +310,7 @@
     function isMale(v) {
       const n = (v.name + " " + v.voiceURI).toLowerCase();
       if (/female|女性/.test(n)) return false;
-      return /otoya|ichiro|keita|daichi|naoki|hattori|男性|\bmale\b|ja-jp-x-jac|ja-jp-x-jad/.test(n);
+      return /otoya|ichiro|keita|daichi|naoki|hattori|takumi|kenji|男性|\bmale\b|ja-jp-x-jac|ja-jp-x-jad/.test(n);
     }
     function pickVoice() {
       const list = jaVoices();
