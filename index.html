@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>つたえるボタン</title>
+  <style>
+    :root {
+      --bg: #fdf8f2;
+      --card: #ffffff;
+      --text: #3a3330;
+      --sub: #7a6f69;
+      --line: #eadfd4;
+      --accent: #e8825a;
+      --accent-soft: #fde6da;
+      --danger: #c94a4a;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; height: 100%; }
+    body {
+      font-family: "Hiragino Maru Gothic ProN", "BIZ UDPGothic", "Meiryo", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 16px;
+      background: var(--card);
+      border-bottom: 2px solid var(--line);
+    }
+    header h1 { margin: 0; font-size: 22px; }
+    .say {
+      flex: 1;
+      text-align: center;
+      font-size: 28px;
+      font-weight: bold;
+      color: var(--accent);
+      min-height: 1.4em;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+    .small-btn {
+      border: 2px solid var(--line);
+      background: var(--card);
+      color: var(--text);
+      border-radius: 12px;
+      padding: 8px 14px;
+      font-size: 16px;
+      font-family: inherit;
+      cursor: pointer;
+    }
+    .small-btn.on { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+    nav {
+      display: flex;
+      gap: 8px;
+      padding: 12px 16px;
+      overflow-x: auto;
+      background: var(--bg);
+    }
+    .tab {
+      flex: 0 0 auto;
+      border: 3px solid var(--line);
+      background: var(--card);
+      border-radius: 999px;
+      padding: 10px 20px;
+      font-size: 20px;
+      font-family: inherit;
+      color: var(--text);
+      cursor: pointer;
+    }
+    .tab.active { border-color: var(--accent); background: var(--accent-soft); font-weight: bold; }
+
+    main {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px 16px 24px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 16px;
+    }
+    .card {
+      position: relative;
+      border: 3px solid var(--line);
+      background: var(--card);
+      border-radius: 20px;
+      padding: 16px 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 170px;
+      font-family: inherit;
+      color: var(--text);
+      cursor: pointer;
+      transition: transform .1s, border-color .1s;
+    }
+    .card:active { transform: scale(.96); }
+    .card.flash { border-color: var(--accent); background: var(--accent-soft); }
+    .card .pic { font-size: 72px; line-height: 1; }
+    .card .word { font-size: 22px; font-weight: bold; text-align: center; }
+    .card.add { border-style: dashed; color: var(--sub); }
+    .card.add .pic { font-size: 48px; }
+    .edit-mark {
+      position: absolute;
+      top: 8px; right: 8px;
+      background: var(--accent);
+      color: #fff;
+      font-size: 13px;
+      border-radius: 8px;
+      padding: 2px 8px;
+    }
+    .empty { color: var(--sub); text-align: center; padding: 40px 0; font-size: 18px; }
+
+    .edit-bar {
+      display: none;
+      gap: 8px;
+      flex-wrap: wrap;
+      padding: 0 16px 12px;
+    }
+    body.editing .edit-bar { display: flex; }
+
+    dialog {
+      border: none;
+      border-radius: 20px;
+      padding: 24px;
+      width: min(440px, calc(100vw - 32px));
+      color: var(--text);
+      background: var(--card);
+    }
+    dialog::backdrop { background: rgba(0,0,0,.4); }
+    dialog h2 { margin: 0 0 16px; font-size: 22px; }
+    dialog label { display: block; font-size: 16px; margin: 12px 0 6px; color: var(--sub); }
+    dialog input, dialog select {
+      width: 100%;
+      font-size: 20px;
+      padding: 10px 12px;
+      border: 2px solid var(--line);
+      border-radius: 12px;
+      font-family: inherit;
+      user-select: text;
+    }
+    .pics { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+    .pics button {
+      font-size: 28px;
+      width: 48px; height: 48px;
+      border: 2px solid var(--line);
+      border-radius: 10px;
+      background: var(--card);
+      cursor: pointer;
+    }
+    .pics button.sel { border-color: var(--accent); background: var(--accent-soft); }
+    .row { display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px; flex-wrap: wrap; }
+    .row .left { margin-right: auto; }
+    .primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .danger { color: var(--danger); border-color: var(--danger); }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>つたえるボタン</h1>
+    <div class="say" id="say"></div>
+    <button class="small-btn" id="editToggle">せってい</button>
+  </header>
+
+  <nav id="tabs"></nav>
+
+  <div class="edit-bar">
+    <button class="small-btn" id="addCat">＋ カテゴリを追加</button>
+    <button class="small-btn" id="editCat">このカテゴリを変更</button>
+    <button class="small-btn" id="speedBtn">声の速さ：ふつう</button>
+    <button class="small-btn danger" id="resetAll">最初の状態にもどす</button>
+  </div>
+
+  <main>
+    <div class="grid" id="grid"></div>
+  </main>
+
+  <!-- ボタンの追加・変更 -->
+  <dialog id="itemDlg">
+    <h2 id="itemTitle">ボタン</h2>
+    <label>話す言葉</label>
+    <input id="itemWord" maxlength="40">
+    <label>絵（下から選ぶか、入力）</label>
+    <input id="itemPic" maxlength="4">
+    <div class="pics" id="picList"></div>
+    <label>カテゴリ</label>
+    <select id="itemCat"></select>
+    <div class="row">
+      <button class="small-btn danger left" id="itemDel">消す</button>
+      <button class="small-btn" id="itemTry">声を聞く</button>
+      <button class="small-btn" id="itemCancel">やめる</button>
+      <button class="small-btn primary" id="itemSave">保存</button>
+    </div>
+  </dialog>
+
+  <!-- カテゴリの追加・変更 -->
+  <dialog id="catDlg">
+    <h2 id="catTitle">カテゴリ</h2>
+    <label>名前</label>
+    <input id="catName" maxlength="12">
+    <label>絵</label>
+    <input id="catPic" maxlength="4">
+    <div class="row">
+      <button class="small-btn danger left" id="catDel">消す</button>
+      <button class="small-btn" id="catCancel">やめる</button>
+      <button class="small-btn primary" id="catSave">保存</button>
+    </div>
+  </dialog>
+
+  <script>
+    const KEY = "tsutaeru-button-v1";
+
+    const DEFAULT = {
+      rate: 1,
+      cats: [
+        { id: "c1", name: "あいさつ", pic: "👋" },
+        { id: "c2", name: "トイレ", pic: "🚻" },
+        { id: "c3", name: "ごはん", pic: "🍚" },
+        { id: "c4", name: "きもち", pic: "😊" },
+        { id: "c5", name: "からだ", pic: "🩹" }
+      ],
+      items: [
+        { id: "i1", cat: "c1", word: "おはよう", pic: "🌅" },
+        { id: "i2", cat: "c1", word: "こんにちは", pic: "☀️" },
+        { id: "i3", cat: "c1", word: "おやすみなさい", pic: "🌙" },
+        { id: "i4", cat: "c1", word: "ありがとう", pic: "💐" },
+        { id: "i5", cat: "c1", word: "はい", pic: "⭕" },
+        { id: "i6", cat: "c1", word: "いいえ", pic: "❌" },
+        { id: "i7", cat: "c2", word: "トイレに行きたい", pic: "🚽" },
+        { id: "i8", cat: "c2", word: "おむつをかえてほしい", pic: "🧷" },
+        { id: "i9", cat: "c2", word: "手をあらいたい", pic: "🧼" },
+        { id: "i10", cat: "c3", word: "おなかがすいた", pic: "🍙" },
+        { id: "i11", cat: "c3", word: "のどがかわいた", pic: "🥤" },
+        { id: "i12", cat: "c3", word: "おいしい", pic: "😋" },
+        { id: "i13", cat: "c3", word: "もういらない", pic: "🙅" },
+        { id: "i14", cat: "c4", word: "うれしい", pic: "😄" },
+        { id: "i15", cat: "c4", word: "かなしい", pic: "😢" },
+        { id: "i16", cat: "c4", word: "こわい", pic: "😨" },
+        { id: "i17", cat: "c4", word: "ひとりにしてほしい", pic: "🤫" },
+        { id: "i18", cat: "c4", word: "そばにいてほしい", pic: "🤝" },
+        { id: "i19", cat: "c5", word: "いたい", pic: "🤕" },
+        { id: "i20", cat: "c5", word: "あつい", pic: "🥵" },
+        { id: "i21", cat: "c5", word: "さむい", pic: "🥶" },
+        { id: "i22", cat: "c5", word: "ねむい", pic: "😪" },
+        { id: "i23", cat: "c5", word: "つかれた", pic: "😮‍💨" }
+      ]
+    };
+
+    const PICS = ["🌅","☀️","🌙","👋","💐","⭕","❌","🚽","🧼","🛁","🍙","🍚","🍞","🍎","🥤","🍵","😋","😄","😢","😨","😠","😪","🤕","🥵","🥶","🤝","🏠","🚗","📺","🎵","📞","💊","🛏️","👕","❤️","❓"];
+
+    function load() {
+      try {
+        const s = JSON.parse(localStorage.getItem(KEY));
+        if (s && Array.isArray(s.cats) && Array.isArray(s.items)) return s;
+      } catch (e) {}
+      return JSON.parse(JSON.stringify(DEFAULT));
+    }
+    function save() {
+      try { localStorage.setItem(KEY, JSON.stringify(data)); } catch (e) {}
+    }
+
+    let data = load();
+    let current = data.cats[0] ? data.cats[0].id : null;
+    let editing = false;
+    let editingItem = null;
+    let editingCat = null;
+
+    const $ = id => document.getElementById(id);
+    const newId = p => p + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+
+    // 声で話す
+    function speak(text) {
+      $("say").textContent = text;
+      if (!("speechSynthesis" in window)) return;
+      speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = "ja-JP";
+      u.rate = data.rate || 1;
+      const ja = speechSynthesis.getVoices().find(v => v.lang && v.lang.startsWith("ja"));
+      if (ja) u.voice = ja;
+      speechSynthesis.speak(u);
+    }
+
+    function el(tag, cls, text) {
+      const e = document.createElement(tag);
+      if (cls) e.className = cls;
+      if (text != null) e.textContent = text;
+      return e;
+    }
+
+    function renderTabs() {
+      const box = $("tabs");
+      box.innerHTML = "";
+      data.cats.forEach(c => {
+        const b = el("button", "tab" + (c.id === current ? " active" : ""), c.pic + " " + c.name);
+        b.onclick = () => { current = c.id; render(); };
+        box.appendChild(b);
+      });
+    }
+
+    function renderGrid() {
+      const grid = $("grid");
+      grid.innerHTML = "";
+      const list = data.items.filter(i => i.cat === current);
+      list.forEach(item => {
+        const b = el("button", "card");
+        b.appendChild(el("div", "pic", item.pic));
+        b.appendChild(el("div", "word", item.word));
+        if (editing) b.appendChild(el("span", "edit-mark", "変更"));
+        b.onclick = () => {
+          if (editing) { openItem(item); return; }
+          speak(item.word);
+          b.classList.add("flash");
+          setTimeout(() => b.classList.remove("flash"), 600);
+        };
+        grid.appendChild(b);
+      });
+      if (editing && current) {
+        const add = el("button", "card add");
+        add.appendChild(el("div", "pic", "＋"));
+        add.appendChild(el("div", "word", "ボタンを追加"));
+        add.onclick = () => openItem(null);
+        grid.appendChild(add);
+      }
+      if (!list.length && !editing) {
+        grid.appendChild(el("div", "empty", "ボタンがありません。「せってい」から追加できます。"));
+      }
+    }
+
+    function render() {
+      document.body.classList.toggle("editing", editing);
+      $("editToggle").textContent = editing ? "おわる" : "せってい";
+      $("editToggle").classList.toggle("on", editing);
+      $("speedBtn").textContent = "声の速さ：" + ({0.7: "ゆっくり", 1: "ふつう", 1.3: "はやい"}[data.rate] || "ふつう");
+      renderTabs();
+      renderGrid();
+    }
+
+    // ボタンの追加・変更
+    function openItem(item) {
+      editingItem = item;
+      $("itemTitle").textContent = item ? "ボタンを変更" : "ボタンを追加";
+      $("itemWord").value = item ? item.word : "";
+      $("itemPic").value = item ? item.pic : "❓";
+      $("itemDel").style.display = item ? "" : "none";
+      const sel = $("itemCat");
+      sel.innerHTML = "";
+      data.cats.forEach(c => {
+        const o = el("option", null, c.pic + " " + c.name);
+        o.value = c.id;
+        sel.appendChild(o);
+      });
+      sel.value = item ? item.cat : current;
+      renderPicList();
+      $("itemDlg").showModal();
+    }
+    function renderPicList() {
+      const box = $("picList");
+      box.innerHTML = "";
+      PICS.forEach(p => {
+        const b = el("button", p === $("itemPic").value ? "sel" : "", p);
+        b.type = "button";
+        b.onclick = () => { $("itemPic").value = p; renderPicList(); };
+        box.appendChild(b);
+      });
+    }
+    $("itemPic").oninput = renderPicList;
+    $("itemTry").onclick = () => { if ($("itemWord").value.trim()) speak($("itemWord").value.trim()); };
+    $("itemCancel").onclick = () => $("itemDlg").close();
+    $("itemSave").onclick = () => {
+      const word = $("itemWord").value.trim();
+      if (!word) { $("itemWord").focus(); return; }
+      const pic = $("itemPic").value.trim() || "❓";
+      const cat = $("itemCat").value;
+      if (editingItem) Object.assign(editingItem, { word, pic, cat });
+      else data.items.push({ id: newId("i"), word, pic, cat });
+      save(); $("itemDlg").close(); render();
+    };
+    $("itemDel").onclick = () => {
+      if (!editingItem || !confirm("「" + editingItem.word + "」のボタンを消しますか？")) return;
+      data.items = data.items.filter(i => i !== editingItem);
+      save(); $("itemDlg").close(); render();
+    };
+
+    // カテゴリの追加・変更
+    function openCat(cat) {
+      editingCat = cat;
+      $("catTitle").textContent = cat ? "カテゴリを変更" : "カテゴリを追加";
+      $("catName").value = cat ? cat.name : "";
+      $("catPic").value = cat ? cat.pic : "⭐";
+      $("catDel").style.display = cat ? "" : "none";
+      $("catDlg").showModal();
+    }
+    $("addCat").onclick = () => openCat(null);
+    $("editCat").onclick = () => { const c = data.cats.find(c => c.id === current); if (c) openCat(c); };
+    $("catCancel").onclick = () => $("catDlg").close();
+    $("catSave").onclick = () => {
+      const name = $("catName").value.trim();
+      if (!name) { $("catName").focus(); return; }
+      const pic = $("catPic").value.trim() || "⭐";
+      if (editingCat) Object.assign(editingCat, { name, pic });
+      else { const c = { id: newId("c"), name, pic }; data.cats.push(c); current = c.id; }
+      save(); $("catDlg").close(); render();
+    };
+    $("catDel").onclick = () => {
+      if (!editingCat || !confirm("「" + editingCat.name + "」と、その中のボタンをすべて消しますか？")) return;
+      data.items = data.items.filter(i => i.cat !== editingCat.id);
+      data.cats = data.cats.filter(c => c !== editingCat);
+      current = data.cats[0] ? data.cats[0].id : null;
+      save(); $("catDlg").close(); render();
+    };
+
+    $("speedBtn").onclick = () => {
+      const order = [0.7, 1, 1.3];
+      data.rate = order[(order.indexOf(data.rate) + 1) % order.length];
+      save(); render();
+      speak("この速さで話します");
+    };
+    $("resetAll").onclick = () => {
+      if (!confirm("追加・変更したボタンがすべて消えて、最初の状態にもどります。よろしいですか？")) return;
+      data = JSON.parse(JSON.stringify(DEFAULT));
+      current = data.cats[0].id;
+      save(); render();
+    };
+    $("editToggle").onclick = () => { editing = !editing; render(); };
+
+    if ("speechSynthesis" in window) speechSynthesis.getVoices();
+    render();
+  </script>
+</body>
+</html>
