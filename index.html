@@ -180,6 +180,8 @@
     <button class="small-btn" id="addCat">＋ カテゴリを追加</button>
     <button class="small-btn" id="editCat">このカテゴリを変更</button>
     <button class="small-btn" id="speedBtn">声の速さ：ふつう</button>
+    <button class="small-btn" id="pitchBtn">声の高さ：たかい</button>
+    <button class="small-btn" id="voiceBtn">声の種類：おまかせ</button>
     <button class="small-btn danger" id="resetAll">最初の状態にもどす</button>
   </div>
 
@@ -224,6 +226,8 @@
 
     const DEFAULT = {
       rate: 1,
+      pitch: 1.4,
+      voice: "",
       cats: [
         { id: "c1", name: "あいさつ", pic: "👋" },
         { id: "c2", name: "トイレ", pic: "🚻" },
@@ -288,9 +292,30 @@
       const u = new SpeechSynthesisUtterance(text);
       u.lang = "ja-JP";
       u.rate = data.rate || 1;
-      const ja = speechSynthesis.getVoices().find(v => v.lang && v.lang.startsWith("ja"));
-      if (ja) u.voice = ja;
+      u.pitch = data.pitch == null ? 1.4 : data.pitch;
+      const v = pickVoice();
+      if (v) u.voice = v;
       speechSynthesis.speak(u);
+    }
+
+    // 日本語の声の一覧
+    function jaVoices() {
+      if (!("speechSynthesis" in window)) return [];
+      return speechSynthesis.getVoices().filter(v => v.lang && v.lang.replace("_", "-").toLowerCase().startsWith("ja"));
+    }
+    // 男の人の声らしいものを探す（端末によっては無い）
+    function isMale(v) {
+      const n = (v.name + " " + v.voiceURI).toLowerCase();
+      if (/female|女性/.test(n)) return false;
+      return /otoya|ichiro|keita|daichi|naoki|hattori|男性|\bmale\b|ja-jp-x-jac|ja-jp-x-jad/.test(n);
+    }
+    function pickVoice() {
+      const list = jaVoices();
+      if (data.voice) {
+        const v = list.find(v => v.name === data.voice);
+        if (v) return v;
+      }
+      return list.find(isMale) || list[0] || null;
     }
 
     function el(tag, cls, text) {
@@ -344,6 +369,11 @@
       $("editToggle").textContent = editing ? "おわる" : "せってい";
       $("editToggle").classList.toggle("on", editing);
       $("speedBtn").textContent = "声の速さ：" + ({0.7: "ゆっくり", 1: "ふつう", 1.3: "はやい"}[data.rate] || "ふつう");
+      const pitch = data.pitch == null ? 1.4 : data.pitch;
+      $("pitchBtn").textContent = "声の高さ：" + ({0.8: "ひくい", 1: "ふつう", 1.4: "たかい"}[pitch] || "たかい");
+      const list = jaVoices();
+      const i = list.findIndex(v => v.name === data.voice);
+      $("voiceBtn").textContent = "声の種類：" + (i < 0 ? "おまかせ" : "声" + (i + 1) + "／" + list.length);
       renderTabs();
       renderGrid();
     }
@@ -428,6 +458,22 @@
       save(); render();
       speak("この速さで話します");
     };
+    $("pitchBtn").onclick = () => {
+      const order = [0.8, 1, 1.4];
+      const now = data.pitch == null ? 1.4 : data.pitch;
+      data.pitch = order[(order.indexOf(now) + 1) % order.length];
+      save(); render();
+      speak("この高さで話します");
+    };
+    $("voiceBtn").onclick = () => {
+      const list = jaVoices();
+      if (!list.length) { alert("この端末では声を選べません。"); return; }
+      const i = list.findIndex(v => v.name === data.voice);
+      const next = i + 1 < list.length ? list[i + 1] : null;
+      data.voice = next ? next.name : "";
+      save(); render();
+      speak("この声で話します");
+    };
     $("resetAll").onclick = () => {
       if (!confirm("追加・変更したボタンがすべて消えて、最初の状態にもどります。よろしいですか？")) return;
       data = JSON.parse(JSON.stringify(DEFAULT));
@@ -436,7 +482,10 @@
     };
     $("editToggle").onclick = () => { editing = !editing; render(); };
 
-    if ("speechSynthesis" in window) speechSynthesis.getVoices();
+    if ("speechSynthesis" in window) {
+      speechSynthesis.getVoices();
+      speechSynthesis.onvoiceschanged = render;
+    }
     render();
   </script>
 </body>
