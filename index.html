@@ -151,6 +151,7 @@
       font-family: inherit;
       user-select: text;
     }
+    .pic-img { width: 1em; height: 1em; vertical-align: -0.15em; }
     .pics { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
     .pics button {
       font-size: 28px;
@@ -243,7 +244,7 @@
         { id: "i5", cat: "c1", word: "はい", pic: "⭕" },
         { id: "i6", cat: "c1", word: "いいえ", pic: "❌" },
         { id: "i7", cat: "c2", word: "トイレに行きたい", pic: "🚽" },
-        { id: "i8", cat: "c2", word: "おむつをかえてほしい", pic: "🧷" },
+        { id: "i8", cat: "c2", word: "おむつをかえてほしい", pic: "おむつ" },
         { id: "i9", cat: "c2", word: "手をあらいたい", pic: "🧼" },
         { id: "i10", cat: "c3", word: "おなかがすいた", pic: "🍙" },
         { id: "i11", cat: "c3", word: "のどがかわいた", pic: "🥤" },
@@ -262,7 +263,7 @@
       ]
     };
 
-    const PICS = ["🌅","☀️","🌙","👋","💐","⭕","❌","🚽","🧷","🩲","🩳","👶","🚼","🧻","💧","🧼","🛁","🍙","🍚","🍞","🍎","🥤","🍵","😋","😄","😢","😨","😠","😪","🤕","🥵","🥶","🤝","🏠","🚗","📺","🎵","📞","💊","🛏️","👕","❤️","❓","🙏","👍","👎","✋","🙋","🤲","🆗","🛑","⏰","🚶","🏃","🏫","🏥","🛒","🏞️","🚌","🚃","👨","👩","👦","👧","👴","👵","👨‍⚕️","🐶","🐱","🍜","🍛","🍳","🍌","🍓","🍪","🍦","🥛","🧃","🍽️","🥄","😊","😆","😐","😡","😭","🥱","🤢","🤒","😷","🦷","👂","👀","🧸","⚽","🎨","📖","🎮","🧩","📱","🎂","🪥","👟","🧥","🌂","🛋️","🔇","🔊","⏸️"];
+    const PICS = ["🌅","☀️","🌙","👋","💐","⭕","❌","🚽","おむつ","🧷","🩲","🩳","👶","🚼","🧻","💧","🧼","🛁","🍙","🍚","🍞","🍎","🥤","🍵","😋","😄","😢","😨","😠","😪","🤕","🥵","🥶","🤝","🏠","🚗","📺","🎵","📞","💊","🛏️","👕","❤️","❓","🙏","👍","👎","✋","🙋","🤲","🆗","🛑","⏰","🚶","🏃","🏫","🏥","🛒","🏞️","🚌","🚃","👨","👩","👦","👧","👴","👵","👨‍⚕️","🐶","🐱","🍜","🍛","🍳","🍌","🍓","🍪","🍦","🥛","🧃","🍽️","🥄","😊","😆","😐","😡","😭","🥱","🤢","🤒","😷","🦷","👂","👀","🧸","⚽","🎨","📖","🎮","🧩","📱","🎂","🪥","👟","🧥","🌂","🛋️","🔇","🔊","⏸️"];
 
     function load() {
       try {
@@ -321,6 +322,31 @@
       return list.find(isMale) || list[0] || null;
     }
 
+    // 絵文字に無い絵（「おむつ」と入れるとこの絵になる）
+    const OWN_PICS = {
+      "おむつ": "data:image/svg+xml," + encodeURIComponent(
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 12 100 80">' +
+        '<path d="M8 24H92V40Q92 52 82 57Q66 64 62 82H38Q34 64 18 57Q8 52 8 40Z" fill="#f4f9ff" stroke="#4a7fd0" stroke-width="5" stroke-linejoin="round"/>' +
+        '<rect x="8" y="24" width="84" height="10" fill="#cfe2ff" stroke="#4a7fd0" stroke-width="4"/>' +
+        '<rect x="3" y="36" width="12" height="9" rx="3" fill="#ffd34d" stroke="#d9a400" stroke-width="2"/>' +
+        '<rect x="85" y="36" width="12" height="9" rx="3" fill="#ffd34d" stroke="#d9a400" stroke-width="2"/>' +
+        '<circle cx="35" cy="46" r="3.5" fill="#8fbaf3"/><circle cx="50" cy="52" r="3.5" fill="#f3a3b8"/><circle cx="65" cy="46" r="3.5" fill="#8fbaf3"/>' +
+        '</svg>')
+    };
+    // 絵を表示する部品をつくる
+    function picEl(pic, cls) {
+      const box = el("span", cls);
+      if (OWN_PICS[pic]) {
+        const img = el("img", "pic-img");
+        img.src = OWN_PICS[pic];
+        img.alt = pic;
+        box.appendChild(img);
+      } else {
+        box.textContent = pic;
+      }
+      return box;
+    }
+
     function el(tag, cls, text) {
       const e = document.createElement(tag);
       if (cls) e.className = cls;
@@ -332,7 +358,8 @@
       const box = $("tabs");
       box.innerHTML = "";
       data.cats.forEach(c => {
-        const b = el("button", "tab" + (c.id === current ? " active" : ""), c.pic + " " + c.name);
+        const b = el("button", "tab" + (c.id === current ? " active" : ""));
+        b.append(picEl(c.pic), " " + c.name);
         b.onclick = () => { current = c.id; render(); };
         box.appendChild(b);
       });
@@ -344,7 +371,9 @@
       const list = data.items.filter(i => i.cat === current);
       list.forEach(item => {
         const b = el("button", "card");
-        b.appendChild(el("div", "pic", item.pic));
+        const pic = picEl(item.pic, "pic");
+        pic.style.display = "block";
+        b.appendChild(pic);
         b.appendChild(el("div", "word", item.word));
         if (editing) b.appendChild(el("span", "edit-mark", "変更"));
         b.onclick = () => {
@@ -403,7 +432,8 @@
       const box = $("picList");
       box.innerHTML = "";
       PICS.forEach(p => {
-        const b = el("button", p === $("itemPic").value ? "sel" : "", p);
+        const b = el("button", p === $("itemPic").value ? "sel" : "");
+        b.appendChild(picEl(p));
         b.type = "button";
         b.onclick = () => { $("itemPic").value = p; renderPicList(); };
         box.appendChild(b);
