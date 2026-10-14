@@ -251,6 +251,7 @@
         { id: "i4", cat: "c1", word: "ありがとう", pic: "💐" },
         { id: "i5", cat: "c1", word: "はい", pic: "⭕" },
         { id: "i6", cat: "c1", word: "いいえ", pic: "❌" },
+        { id: "i24", cat: "c1", word: "いってきます", pic: "🎒" },
         { id: "i7", cat: "c2", word: "トイレに行きたい", pic: "🚽" },
         { id: "i8", cat: "c2", word: "おむつをかえてほしい", pic: "おむつ" },
         { id: "i9", cat: "c2", word: "手をあらいたい", pic: "🧼" },
@@ -263,6 +264,7 @@
         { id: "i16", cat: "c4", word: "こわい", pic: "😨" },
         { id: "i17", cat: "c4", word: "ひとりにしてほしい", pic: "🤫" },
         { id: "i18", cat: "c4", word: "そばにいてほしい", pic: "🤝" },
+        { id: "i25", cat: "c4", word: "いきたくない", pic: "😣" },
         { id: "i19", cat: "c5", word: "いたい", pic: "🤕" },
         { id: "i20", cat: "c5", word: "あつい", pic: "🥵" },
         { id: "i21", cat: "c5", word: "さむい", pic: "🥶" },
@@ -271,14 +273,28 @@
       ]
     };
 
-    const PICS = ["🌅","☀️","🌙","👋","💐","⭕","❌","🚽","おむつ","🧷","🩲","🩳","👶","🚼","🧻","💧","🧼","🛁","🍙","🍚","🍞","🍎","🥤","🍵","😋","😄","😢","😨","😠","😪","🤕","🥵","🥶","🤝","🏠","🚗","📺","🎵","📞","💊","🛏️","👕","❤️","❓","🙏","👍","👎","✋","🙋","🤲","🆗","🛑","⏰","🚶","🏃","🏫","🏥","🛒","🏞️","🚌","🚃","👨","👩","👦","👧","👴","👵","👨‍⚕️","🐶","🐱","🍜","🍛","🍳","🍌","🍓","🍪","🍦","🥛","🧃","🍽️","🥄","😊","😆","😐","😡","😭","🥱","🤢","🤒","😷","🦷","👂","👀","🧸","⚽","🎨","📖","🎮","🧩","📱","🎂","🪥","👟","🧥","🌂","🛋️","🔇","🔊","⏸️"];
+    const PICS = ["🌅","☀️","🌙","👋","💐","⭕","❌","🚽","おむつ","🧷","🩲","🩳","👶","🚼","🧻","💧","🧼","🛁","🍙","🍚","🍞","🍎","🥤","🍵","😋","😄","😢","😨","😣","😠","😪","🤕","🥵","🥶","🤝","🏠","🚗","📺","🎵","📞","💊","🛏️","👕","❤️","❓","🎒","🙏","👍","👎","✋","🙋","🤲","🆗","🛑","⏰","🚶","🏃","🏫","🏥","🛒","🏞️","🚌","🚃","👨","👩","👦","👧","👴","👵","👨‍⚕️","🐶","🐱","🍜","🍛","🍳","🍌","🍓","🍪","🍦","🥛","🧃","🍽️","🥄","😊","😆","😐","😡","😭","🥱","🤢","🤒","😷","🦷","👂","👀","🧸","⚽","🎨","📖","🎮","🧩","📱","🎂","🪥","👟","🧥","🌂","🛋️","🔇","🔊","⏸️"];
 
     function load() {
       try {
         const s = JSON.parse(localStorage.getItem(KEY));
-        if (s && Array.isArray(s.cats) && Array.isArray(s.items)) return s;
+        if (s && Array.isArray(s.cats) && Array.isArray(s.items)) return addLaterItems(s);
       } catch (e) {}
       return JSON.parse(JSON.stringify(DEFAULT));
+    }
+    // あとから足したボタン。もう使っている人の画面にも1回だけ足す
+    const LATER_ITEMS = ["i24", "i25"];
+    function addLaterItems(d) {
+      d.added = d.added || [];
+      LATER_ITEMS.forEach(id => {
+        if (d.added.includes(id)) return;
+        d.added.push(id);
+        const item = DEFAULT.items.find(i => i.id === id);
+        if (d.cats.some(c => c.id === item.cat) && !d.items.some(i => i.id === id)) {
+          d.items.push(Object.assign({}, item));
+        }
+      });
+      return d;
     }
     function save() {
       try { localStorage.setItem(KEY, JSON.stringify(data)); } catch (e) {}
@@ -319,7 +335,7 @@
     };
     // 絵を表示する部品をつくる
     // 動く絵文字（Google の Noto 動く絵文字）。動く版がある絵文字の一覧
-    const MOVING = "🤫😮‍💨😊⭐🌅👋💐❌💧🍞🍎🍵😋😄😢😨😠😪🤕🥵🥶🤝🏠🚗📺❤️❓🙏👍👎✋🤲🆗🛑⏰🛒🏞️🚌🐱🍜🍳🍓🍪🍦🧃🍽️😆😐😡😭🥱🤢🤒😷👂👀⚽🎂👟";
+    const MOVING = "😣🤫😮‍💨😊⭐🌅👋💐❌💧🍞🍎🍵😋😄😢😨😠😪🤕🥵🥶🤝🏠🚗📺❤️❓🙏👍👎✋🤲🆗🛑⏰🛒🏞️🚌🐱🍜🍳🍓🍪🍦🧃🍽️😆😐😡😭🥱🤢🤒😷👂👀⚽🎂👟";
     const loadedMoving = new Set();
     function movingUrl(pic) {
       const code = [...pic].filter(c => c !== "\ufe0f").map(c => c.codePointAt(0).toString(16)).join("_");
