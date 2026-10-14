@@ -177,13 +177,56 @@
     .row .left { margin-right: auto; }
     .primary { background: var(--accent); color: #fff; border-color: var(--accent); }
     .danger { color: var(--danger); border-color: var(--danger); }
+
+    /* 日記 */
+    .head-btns { display: flex; gap: 8px; }
+    dialog textarea {
+      width: 100%;
+      font-size: 20px;
+      line-height: 1.7;
+      padding: 10px 12px;
+      border: 2px solid var(--line);
+      border-radius: 12px;
+      font-family: inherit;
+      color: var(--text);
+      user-select: text;
+      resize: vertical;
+    }
+    .diary-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 12px; }
+    .diary-head h2 { margin: 0; flex: 1; text-align: center; }
+    .diary-head .small-btn { font-size: 22px; padding: 4px 14px; }
+    .diary-head .small-btn:disabled { opacity: .3; }
+    .photo-box {
+      border: 2px dashed var(--line);
+      border-radius: 16px;
+      min-height: 160px;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--sub);
+      overflow: hidden;
+      background: var(--bg);
+    }
+    .photo-box img { display: block; width: 100%; height: auto; }
+    .photo-btns { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+    .photo-btns input { display: none; }
+    .photo-btns > * { display: inline-flex; align-items: center; margin: 0; }
+    .photo-btns label { color: var(--text); }
+    header .small-btn, header h1 { white-space: nowrap; }
+    @media (max-width: 420px) {
+      header { gap: 8px; padding: 10px 12px; }
+      header h1 { font-size: 18px; }
+      header .small-btn { padding: 8px 10px; font-size: 15px; }
+      .head-btns { gap: 6px; }
+    }
   </style>
 </head>
 <body>
   <header>
     <h1>つたえるボタン</h1>
     <div class="say" id="say"></div>
-    <button class="small-btn" id="editToggle">せってい</button>
+    <div class="head-btns">
+      <button class="small-btn" id="diaryBtn">📖 日記</button>
+      <button class="small-btn" id="editToggle">せってい</button>
+    </div>
   </header>
 
   <nav id="tabs"></nav>
@@ -229,6 +272,27 @@
       <button class="small-btn danger left" id="catDel">消す</button>
       <button class="small-btn" id="catCancel">やめる</button>
       <button class="small-btn primary" id="catSave">保存</button>
+    </div>
+  </dialog>
+
+  <!-- 日記 -->
+  <dialog id="diaryDlg">
+    <div class="diary-head">
+      <button class="small-btn" id="dPrev">‹</button>
+      <h2 id="dDate"></h2>
+      <button class="small-btn" id="dNext">›</button>
+    </div>
+    <div class="photo-box" id="dPhoto"></div>
+    <div class="photo-btns">
+      <label class="small-btn">📷 写真をえらぶ<input type="file" accept="image/*" id="dFile"></label>
+      <button class="small-btn danger" id="dPhotoDel">写真を消す</button>
+    </div>
+    <label>日記（書きなおせます）</label>
+    <textarea id="dText" rows="6"></textarea>
+    <div class="row">
+      <button class="small-btn left" id="dRemake">作りなおす</button>
+      <button class="small-btn" id="dRead">🔊 読む</button>
+      <button class="small-btn primary" id="dClose">とじる</button>
     </div>
   </dialog>
 
@@ -395,6 +459,7 @@
         b.onclick = () => {
           if (editing) { openItem(item); return; }
           speak(item.word);
+          logPress(item);
           b.classList.add("flash");
           setTimeout(() => b.classList.remove("flash"), 600);
         };
@@ -512,6 +577,167 @@
       save(); render();
     };
     $("editToggle").onclick = () => { editing = !editing; render(); };
+
+    // ===== 日記 =====
+    const DIARY_KEY = "tsutaeru-diary-v1";
+    let diary = {};
+    try { diary = JSON.parse(localStorage.getItem(DIARY_KEY)) || {}; } catch (e) {}
+    let diaryDay = null;
+
+    const dayKey = d => d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+    const keyToDate = k => { const [y, m, d] = k.split("-").map(Number); return new Date(y, m - 1, d); };
+    function getDay(k) { return diary[k] || (diary[k] = { log: [], photo: "", text: null }); }
+
+    // 保存。いっぱいのときは古い日の写真から消す
+    function saveDiary() {
+      for (;;) {
+        try { localStorage.setItem(DIARY_KEY, JSON.stringify(diary)); return true; } catch (e) {
+          const old = Object.keys(diary).sort().find(k => k !== diaryDay && diary[k].photo);
+          if (!old) { alert("スマホの保存場所がいっぱいで、保存できませんでした。"); return false; }
+          diary[old].photo = "";
+        }
+      }
+    }
+
+    // ボタンを押したことを記録
+    function logPress(item) {
+      const now = new Date();
+      getDay(dayKey(now)).log.push({ h: now.getHours(), word: item.word, cat: item.cat });
+      saveDiary();
+    }
+
+    // 押したボタンから日記の文を作る
+    function makeDiary(k) {
+      const day = getDay(k);
+      const lines = [];
+      const parts = [["あさ", h => h < 11], ["ひる", h => h >= 11 && h < 17], ["よる", h => h >= 17]];
+      const total = {};
+      parts.forEach(([name, test]) => {
+        const counts = {};
+        day.log.filter(l => test(l.h)).forEach(l => {
+          counts[l.word] = (counts[l.word] || 0) + 1;
+          total[l.word] = (total[l.word] || 0) + 1;
+        });
+        const words = Object.keys(counts);
+        if (!words.length) return;
+        const list = words.map(w => "「" + w + "」" + (counts[w] > 1 ? "を" + counts[w] + "回" : "")).join("、");
+        lines.push(name + "は、" + list + "と つたえました。");
+      });
+      if (!lines.length) lines.push("きょうは ボタンを つかいませんでした。");
+      const feel = [...new Set(day.log.filter(l => l.cat === "c4").map(l => l.word))];
+      if (feel.length) lines.push("きもちは、" + feel.map(w => "「" + w + "」").join("、") + "でした。");
+      const top = Object.keys(total).sort((a, b) => total[b] - total[a])[0];
+      if (top && total[top] > 1) lines.push("いちばん たくさん つたえたのは「" + top + "」でした。");
+      if (day.photo) lines.push("しゃしんも とりました。");
+      lines.push("きょうも よく がんばりました。");
+      return lines.join("\n");
+    }
+
+    function renderDiary() {
+      const k = diaryDay, day = getDay(k), d = keyToDate(k);
+      $("dDate").textContent = (d.getMonth() + 1) + "月" + d.getDate() + "日（" + "日月火水木金土"[d.getDay()] + "）";
+      $("dNext").disabled = k >= dayKey(new Date());
+      const box = $("dPhoto");
+      box.innerHTML = "";
+      if (day.photo) { const img = el("img"); img.src = day.photo; img.alt = "写真"; box.appendChild(img); }
+      else box.textContent = "写真はまだありません";
+      $("dPhotoDel").style.display = day.photo ? "" : "none";
+      $("dText").value = day.text != null ? day.text : makeDiary(k);
+    }
+    function moveDay(n) {
+      const d = keyToDate(diaryDay);
+      d.setDate(d.getDate() + n);
+      diaryDay = dayKey(d);
+      renderDiary();
+    }
+
+    // 写真をイラスト風にする（色の数をへらして、ふちに線を入れる）
+    function toIllust(img) {
+      const max = 640;
+      const r = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+      const w = Math.round(img.naturalWidth * r), h = Math.round(img.naturalHeight * r);
+      const cv = document.createElement("canvas");
+      cv.width = w; cv.height = h;
+      const ctx = cv.getContext("2d");
+      ctx.drawImage(img, 0, 0, w, h);
+      const im = ctx.getImageData(0, 0, w, h), src = im.data;
+      // ぼかして細かいざらつきを消す
+      const blur = new Uint8ClampedArray(src.length);
+      for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+        let rr = 0, gg = 0, bb = 0, n = 0;
+        for (let dy = -2; dy <= 2; dy++) for (let dx = -2; dx <= 2; dx++) {
+          const yy = y + dy, xx = x + dx;
+          if (yy < 0 || yy >= h || xx < 0 || xx >= w) continue;
+          const i = (yy * w + xx) * 4;
+          rr += src[i]; gg += src[i + 1]; bb += src[i + 2]; n++;
+        }
+        const i = (y * w + x) * 4;
+        blur[i] = rr / n; blur[i + 1] = gg / n; blur[i + 2] = bb / n; blur[i + 3] = 255;
+      }
+      const gray = new Float32Array(w * h);
+      for (let i = 0; i < w * h; i++) gray[i] = blur[i * 4] * .3 + blur[i * 4 + 1] * .59 + blur[i * 4 + 2] * .11;
+      const step = 255 / 5;
+      for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+        const i = (y * w + x) * 4;
+        // 色をあざやかにして、段階を少なくする
+        let c = [blur[i], blur[i + 1], blur[i + 2]];
+        const avg = (c[0] + c[1] + c[2]) / 3;
+        c = c.map(v => Math.round(Math.min(255, Math.max(0, avg + (v - avg) * 1.4 + 12)) / step) * step);
+        // ふちの線
+        let edge = 0;
+        if (x > 0 && y > 0 && x < w - 1 && y < h - 1) {
+          const g = (xx, yy) => gray[yy * w + xx];
+          const gx = -g(x-1,y-1) - 2*g(x-1,y) - g(x-1,y+1) + g(x+1,y-1) + 2*g(x+1,y) + g(x+1,y+1);
+          const gy = -g(x-1,y-1) - 2*g(x,y-1) - g(x+1,y-1) + g(x-1,y+1) + 2*g(x,y+1) + g(x+1,y+1);
+          edge = Math.min(1, Math.max(0, (Math.hypot(gx, gy) - 40) / 80));
+        }
+        const k = 1 - edge * .8;
+        src[i] = c[0] * k; src[i + 1] = c[1] * k; src[i + 2] = c[2] * k;
+      }
+      ctx.putImageData(im, 0, 0);
+      return cv.toDataURL("image/jpeg", 0.8);
+    }
+
+    $("dFile").onchange = e => {
+      const file = e.target.files[0];
+      e.target.value = "";
+      if (!file) return;
+      $("dPhoto").textContent = "イラストにしています…";
+      const url = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = () => {
+        setTimeout(() => {
+          const day = getDay(diaryDay);
+          day.photo = toIllust(img);
+          URL.revokeObjectURL(url);
+          saveDiary();
+          renderDiary();
+        }, 30);
+      };
+      img.onerror = () => { alert("この写真は読みこめませんでした。"); renderDiary(); };
+      img.src = url;
+    };
+    $("dPhotoDel").onclick = () => {
+      if (!confirm("この日の写真を消しますか？")) return;
+      getDay(diaryDay).photo = "";
+      saveDiary(); renderDiary();
+    };
+    $("dText").oninput = () => { getDay(diaryDay).text = $("dText").value; saveDiary(); };
+    $("dRemake").onclick = () => {
+      const day = getDay(diaryDay);
+      if (day.text != null && !confirm("書きなおした文が消えて、押したボタンから作りなおします。よろしいですか？")) return;
+      day.text = null;
+      saveDiary(); renderDiary();
+    };
+    $("dRead").onclick = () => speak($("dText").value.replace(/\n/g, " "));
+    $("dPrev").onclick = () => moveDay(-1);
+    $("dNext").onclick = () => moveDay(1);
+    $("dClose").onclick = () => $("diaryDlg").close();
+    $("diaryBtn").onclick = () => {
+      diaryDay = dayKey(new Date());
+      renderDiary();
+      $("diaryDlg").showModal();
+    };
 
     if ("speechSynthesis" in window) speechSynthesis.getVoices();
     render();
