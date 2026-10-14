@@ -167,6 +167,11 @@
       background: var(--card);
       cursor: pointer;
     }
+    .pics button.moves { position: relative; }
+    .pics button.moves::after {
+      content: "うごく"; position: absolute; left: 0; right: 0; bottom: -2px;
+      font-size: 9px; font-weight: bold; color: var(--accent);
+    }
     .pics button.sel { border-color: var(--accent); background: var(--accent-soft); }
     .row { display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px; flex-wrap: wrap; }
     .row .left { margin-right: auto; }
@@ -313,7 +318,15 @@
         '</svg>')
     };
     // 絵を表示する部品をつくる
-    function picEl(pic, cls) {
+    // 動く絵文字（Google の Noto 動く絵文字）。動く版がある絵文字の一覧
+    const MOVING = "🤫😮‍💨😊⭐🌅👋💐❌💧🍞🍎🍵😋😄😢😨😠😪🤕🥵🥶🤝🏠🚗📺❤️❓🙏👍👎✋🤲🆗🛑⏰🛒🏞️🚌🐱🍜🍳🍓🍪🍦🧃🍽️😆😐😡😭🥱🤢🤒😷👂👀⚽🎂👟";
+    const loadedMoving = new Set();
+    function movingUrl(pic) {
+      const code = [...pic].filter(c => c !== "\ufe0f").map(c => c.codePointAt(0).toString(16)).join("_");
+      return "https://fonts.gstatic.com/s/e/notoemoji/latest/" + code + "/512.webp";
+    }
+    // 絵を表示する部品をつくる（move が true なら、動く絵文字が読みこめたら差しかえる）
+    function picEl(pic, cls, move = true) {
       const box = el("span", cls);
       if (OWN_PICS[pic]) {
         const img = el("img", "pic-img");
@@ -322,6 +335,14 @@
         box.appendChild(img);
       } else {
         box.textContent = pic;
+        if (move && pic) {
+          const img = el("img", "pic-img");
+          img.alt = pic;
+          img.src = movingUrl(pic);
+          // 一度読みこめた絵はすぐ出す（ちらつかないように）
+          if (loadedMoving.has(img.src)) box.replaceChildren(img);
+          else img.onload = () => { loadedMoving.add(img.src); box.replaceChildren(img); };
+        }
       }
       return box;
     }
@@ -407,8 +428,8 @@
       const box = $(boxId);
       box.innerHTML = "";
       PICS.forEach(p => {
-        const b = el("button", p === $(inputId).value ? "sel" : "");
-        b.appendChild(picEl(p));
+        const b = el("button", (p === $(inputId).value ? "sel " : "") + (MOVING.includes(p) ? "moves" : ""));
+        b.appendChild(picEl(p, null, false));
         b.type = "button";
         b.onclick = () => { $(inputId).value = p; renderPicList(inputId, boxId); };
         box.appendChild(b);
