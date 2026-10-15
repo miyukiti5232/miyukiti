@@ -627,7 +627,6 @@
 
     // 声で話す
     function speak(text) {
-      $("say").textContent = text;
       if (!("speechSynthesis" in window)) return;
       speechSynthesis.cancel();
       const u = new SpeechSynthesisUtterance(text);
