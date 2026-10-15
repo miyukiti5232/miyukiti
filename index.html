@@ -198,7 +198,16 @@
     .diary-head .small-btn:disabled { opacity: .3; }
     header .small-btn, header h1 { white-space: nowrap; }
     /* つかいかた */
-    #helpBtn { width: 40px; padding: 8px 0; font-weight: bold; }
+    #helpBtn, #globeBtn { width: 40px; padding: 8px 0; font-weight: bold; }
+    @media (max-width: 360px) { header h1 { display: none; } }
+    @media (max-width: 420px) { header #helpBtn, header #globeBtn { width: 32px; padding: 7px 0; } }
+    .lang-choices { display: flex; flex-direction: column; gap: 12px; margin-top: 8px; }
+    .lang-choices button {
+      font-size: 24px; padding: 18px; border-radius: 16px;
+      border: 3px solid var(--line); background: var(--card); color: var(--text);
+      font-family: inherit; cursor: pointer;
+    }
+    .lang-choices button.sel { border-color: var(--accent); background: var(--accent-soft); font-weight: bold; }
     [data-lang] { display: none; }
     html[lang="ja"] [data-lang="ja"], html[lang="en"] [data-lang="en"] { display: block; }
     #helpDlg h3 { font-size: 18px; margin: 20px 0 8px; color: var(--accent); }
@@ -208,10 +217,10 @@
     .qr { width: 200px; height: 200px; display: block; margin: 0 auto 8px; }
     .url { font-size: 14px; color: var(--sub); word-break: break-all; user-select: text; }
     @media (max-width: 420px) {
-      header { gap: 8px; padding: 10px 12px; }
-      header h1 { font-size: 18px; }
-      header .small-btn { padding: 8px 10px; font-size: 15px; }
-      .head-btns { gap: 6px; }
+      header { gap: 6px; padding: 10px 8px; }
+      header h1 { font-size: 16px; }
+      header .small-btn { padding: 7px 8px; font-size: 14px; }
+      .head-btns { gap: 4px; }
     }
   </style>
 </head>
@@ -222,6 +231,7 @@
     <div class="head-btns">
       <button class="small-btn" id="diaryBtn" data-t="diary">📖 日記</button>
       <button class="small-btn" id="editToggle">せってい</button>
+      <button class="small-btn" id="globeBtn" aria-label="ことば / Language">🌐</button>
       <button class="small-btn" id="helpBtn" aria-label="つかいかた">？</button>
     </div>
   </header>
@@ -270,6 +280,15 @@
       <button class="small-btn danger left" id="catDel" data-t="del">消す</button>
       <button class="small-btn" id="catCancel" data-t="cancel">やめる</button>
       <button class="small-btn primary" id="catSave" data-t="save">保存</button>
+    </div>
+  </dialog>
+
+  <!-- ことばを選ぶ -->
+  <dialog id="langDlg">
+    <h2>ことば / Language</h2>
+    <div class="lang-choices">
+      <button id="pickJa">🇯🇵 日本語</button>
+      <button id="pickEn">🇺🇸 English</button>
     </div>
   </dialog>
 
@@ -734,11 +753,25 @@
       save(); render();
       speak(t("speedTest"));
     };
-    $("langBtn").onclick = () => {
-      translateDefaults(data, lang(), lang() === "ja" ? "en" : "ja");
+    // ことばを選ぶ画面
+    let afterLang = null;
+    function openLang(then) {
+      afterLang = then || null;
+      $("pickJa").className = lang() === "ja" ? "sel" : "";
+      $("pickEn").className = lang() === "en" ? "sel" : "";
+      $("langDlg").showModal();
+    }
+    function setLang(l) {
+      if (l !== lang()) translateDefaults(data, lang(), l);
       save(); render();
+      $("langDlg").close();
       speak(t("langTest"));
-    };
+      if (afterLang) { const f = afterLang; afterLang = null; f(); }
+    }
+    $("pickJa").onclick = () => setLang("ja");
+    $("pickEn").onclick = () => setLang("en");
+    $("langBtn").onclick = () => openLang();
+    $("globeBtn").onclick = () => openLang();
     $("resetAll").onclick = () => {
       if (!confirm(t("resetAsk"))) return;
       const keep = lang();
@@ -882,7 +915,8 @@
     render();
     // はじめて開いた人には、つかいかたを出す
     try {
-      if (!localStorage.getItem(HELP_KEY) && !localStorage.getItem(KEY)) openHelp();
+      // はじめての人には、まずことばを選んでもらい、そのあと使いかたを出す
+      if (!localStorage.getItem(HELP_KEY) && !localStorage.getItem(KEY)) openLang(openHelp);
       localStorage.setItem(HELP_KEY, "1");
     } catch (e) {}
   </script>
