@@ -197,6 +197,14 @@
     .diary-head .small-btn { font-size: 22px; padding: 4px 14px; }
     .diary-head .small-btn:disabled { opacity: .3; }
     header .small-btn, header h1 { white-space: nowrap; }
+    /* つかいかた */
+    #helpBtn { width: 40px; padding: 8px 0; font-weight: bold; }
+    #helpDlg h3 { font-size: 18px; margin: 20px 0 8px; color: var(--accent); }
+    #helpDlg p, #helpDlg li { font-size: 17px; line-height: 1.7; margin: 4px 0; }
+    #helpDlg ol, #helpDlg ul { padding-left: 1.4em; margin: 4px 0; }
+    .qr-box { text-align: center; margin-top: 8px; }
+    .qr { width: 200px; height: 200px; display: block; margin: 0 auto 8px; }
+    .url { font-size: 14px; color: var(--sub); word-break: break-all; user-select: text; }
     @media (max-width: 420px) {
       header { gap: 8px; padding: 10px 12px; }
       header h1 { font-size: 18px; }
@@ -212,6 +220,7 @@
     <div class="head-btns">
       <button class="small-btn" id="diaryBtn">📖 日記</button>
       <button class="small-btn" id="editToggle">せってい</button>
+      <button class="small-btn" id="helpBtn" aria-label="つかいかた">？</button>
     </div>
   </header>
 
@@ -258,6 +267,52 @@
       <button class="small-btn danger left" id="catDel">消す</button>
       <button class="small-btn" id="catCancel">やめる</button>
       <button class="small-btn primary" id="catSave">保存</button>
+    </div>
+  </dialog>
+
+  <!-- つかいかた -->
+  <dialog id="helpDlg">
+    <h2>つかいかた</h2>
+    <p>「つたえるボタン」は、ボタンを押すと、スマホが声で代わりに話してくれるアプリです。無料で、登録もいりません。</p>
+
+    <h3>🔊 話す</h3>
+    <ol>
+      <li>上の「あいさつ」「トイレ」などを押して、なかまを選びます。</li>
+      <li>大きなボタンを押すと、声で話します。</li>
+    </ol>
+
+    <h3>✏️ ボタンを作る・変える</h3>
+    <ul>
+      <li>右上の「せってい」を押すと、ボタンの追加・変更、なかまの追加、声の速さの変更ができます。</li>
+      <li>おわったら「おわる」を押します。</li>
+    </ul>
+
+    <h3>📖 日記</h3>
+    <ul>
+      <li>その日に押したボタンから、日記を自動で作ります。</li>
+      <li>「📤 送る」で、LINE などで家族に送れます。</li>
+    </ul>
+
+    <h3>🔒 安心して使えます</h3>
+    <p>作ったボタンや日記は、このスマホの中だけに保存されます。ほかの人に送られることはありません。</p>
+
+    <h3>📱 ホーム画面に置く</h3>
+    <ul>
+      <li>iPhone：Safari の「共有」→「ホーム画面に追加」</li>
+      <li>Android：Chrome の「︙」→「ホーム画面に追加」</li>
+      <li>LINE の中で開くと声が出ないことがあります。Safari か Chrome で開いてください。</li>
+    </ul>
+
+    <h3>🤝 ほかの人に教える</h3>
+    <p>このQRコードをスマホのカメラで読みとると、アプリが開きます。</p>
+    <div class="qr-box">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 37 37" class="qr"><rect width="37" height="37" fill="#fff"/><path stroke="#000" d="M2 2.5h7m1 0h6m2 0h5m2 0h1m2 0h7m-33 1h1m5 0h1m1 0h1m1 0h3m3 0h3m1 0h5m1 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m2 0h3m1 0h2m1 0h1m3 0h1m1 0h2m2 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h6m2 0h1m2 0h1m1 0h4m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m2 0h2m2 0h1m1 0h1m1 0h1m1 0h1m1 0h1m2 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m4 0h1m2 0h1m1 0h5m1 0h1m1 0h1m1 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-25 1h4m3 0h1m1 0h2m1 0h1m1 0h3m-25 1h1m1 0h2m1 0h3m1 0h1m6 0h4m1 0h1m4 0h1m2 0h1m1 0h2m-31 1h2m5 0h2m1 0h1m3 0h1m1 0h2m1 0h3m2 0h2m1 0h4m-33 1h3m3 0h1m1 0h1m2 0h1m2 0h1m5 0h1m1 0h3m2 0h3m1 0h2m-33 1h6m1 0h1m1 0h1m2 0h4m8 0h1m2 0h1m1 0h1m-28 1h6m1 0h1m1 0h2m3 0h2m4 0h1m1 0h1m2 0h3m2 0h1m-31 1h2m5 0h2m2 0h4m1 0h2m2 0h1m1 0h1m2 0h1m1 0h3m-30 1h1m3 0h1m5 0h2m5 0h1m6 0h1m1 0h2m-30 1h1m2 0h2m5 0h1m1 0h1m2 0h2m2 0h3m2 0h3m2 0h2m-31 1h4m2 0h2m1 0h4m1 0h1m3 0h2m1 0h6m1 0h1m1 0h1m-31 1h2m1 0h2m2 0h1m2 0h1m1 0h1m1 0h3m1 0h1m2 0h6m1 0h2m1 0h2m-32 1h4m1 0h1m1 0h1m6 0h1m1 0h2m1 0h2m3 0h4m1 0h2m-30 1h3m4 0h2m4 0h1m1 0h1m1 0h2m2 0h1m1 0h1m2 0h1m2 0h2m-33 1h2m1 0h1m1 0h4m2 0h1m2 0h1m1 0h4m1 0h1m1 0h3m1 0h1m1 0h2m1 0h1m-33 1h1m2 0h1m1 0h1m2 0h3m1 0h1m3 0h1m1 0h3m1 0h2m1 0h2m2 0h2m1 0h1m-31 1h2m2 0h3m3 0h3m1 0h3m1 0h1m2 0h3m1 0h1m3 0h2m-32 1h1m1 0h2m2 0h1m1 0h1m1 0h2m2 0h2m6 0h2m4 0h1m1 0h2m-33 1h1m5 0h1m2 0h4m2 0h1m1 0h1m2 0h1m2 0h6m2 0h2m-25 1h1m1 0h3m2 0h2m2 0h2m1 0h1m1 0h1m3 0h2m-30 1h7m1 0h2m1 0h4m2 0h3m3 0h2m1 0h1m1 0h1m-29 1h1m5 0h1m1 0h1m4 0h1m1 0h2m2 0h1m1 0h1m1 0h2m3 0h5m-33 1h1m1 0h3m1 0h1m2 0h3m1 0h1m2 0h1m1 0h1m2 0h8m1 0h2m-32 1h1m1 0h3m1 0h1m1 0h1m3 0h1m2 0h1m1 0h2m1 0h1m1 0h2m3 0h1m2 0h1m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h1m4 0h2m1 0h1m1 0h3m3 0h2m1 0h1m-30 1h1m5 0h1m2 0h3m3 0h3m4 0h4m1 0h2m3 0h1m-33 1h7m1 0h2m1 0h1m1 0h1m3 0h7m2 0h1m1 0h1m1 0h1"/></svg>
+
+      <div class="url">https://miyukiti5232.github.io/miyukiti/</div>
+    </div>
+    <div class="row">
+      <button class="small-btn left" id="helpShare">📤 アドレスを送る</button>
+      <button class="small-btn primary" id="helpClose">とじる</button>
     </div>
   </dialog>
 
@@ -646,8 +701,29 @@
       $("diaryDlg").showModal();
     };
 
+    // ===== つかいかた =====
+    const APP_URL = "https://miyukiti5232.github.io/miyukiti/?openExternalBrowser=1";
+    const HELP_KEY = "tsutaeru-help-seen";
+    // ひらいたら、いちばん上から見せる
+    function openHelp() { $("helpDlg").showModal(); $("helpDlg").scrollTop = 0; }
+    $("helpBtn").onclick = openHelp;
+    $("helpClose").onclick = () => $("helpDlg").close();
+    $("helpShare").onclick = async () => {
+      const text = "声で気持ちを伝えるアプリ「つたえるボタン」です。無料・登録なしで使えます。\n" + APP_URL;
+      if (navigator.share) {
+        try { await navigator.share({ text }); } catch (e) {}
+        return;
+      }
+      window.open("https://line.me/R/share?text=" + encodeURIComponent(text), "_blank");
+    };
+
     if ("speechSynthesis" in window) speechSynthesis.getVoices();
     render();
+    // はじめて開いた人には、つかいかたを出す
+    try {
+      if (!localStorage.getItem(HELP_KEY) && !localStorage.getItem(KEY)) openHelp();
+      localStorage.setItem(HELP_KEY, "1");
+    } catch (e) {}
   </script>
 </body>
 </html>
