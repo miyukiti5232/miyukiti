@@ -257,6 +257,10 @@
     #helpDlg ol, #helpDlg ul { padding-left: 1.4em; margin: 4px 0; }
     .qr-box { text-align: center; margin-top: 8px; }
     .qr { width: 200px; height: 200px; display: block; margin: 0 auto 8px; }
+    #helpDlg .credit { font-size: 13px; color: var(--sub); text-align: center; margin-top: 16px; }
+    #helpDlg .credit a { color: var(--sub); }
+    #helpDlg .credit span[data-lang] { display: none; }
+    html[lang="ja"] #helpDlg .credit span[data-lang="ja"], html[lang="en"] #helpDlg .credit span[data-lang="en"] { display: inline; }
     .url { font-size: 14px; color: var(--sub); word-break: break-all; user-select: text; }
     @media (max-width: 420px) {
       header { gap: 6px; padding: 10px 8px; }
@@ -416,6 +420,9 @@
 
       <div class="url">https://miyukiti5232.github.io/miyukiti/</div>
     </div>
+    <p class="credit">
+      <span data-lang="ja">動く絵文字：</span><span data-lang="en">Animated emoji: </span>Google「<a href="https://googlefonts.github.io/noto-emoji-animation/" target="_blank" rel="noopener">Noto Emoji</a>」（<a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>）
+    </p>
     <div class="row">
       <button class="small-btn left" id="helpShare" data-t="shareUrl">📤 アドレスを送る</button>
       <button class="small-btn primary" id="helpClose" data-t="close">とじる</button>
@@ -1088,7 +1095,7 @@
     const APP_URL = "https://miyukiti5232.github.io/miyukiti/?openExternalBrowser=1";
     const HELP_KEY = "tsutaeru-help-seen";
     // ひらいたら、いちばん上から見せる
-    function openHelp() { $("helpDlg").showModal(); $("helpDlg").scrollTop = 0; }
+    function openHelp() { $("helpDlg").showModal(); document.activeElement.blur(); $("helpDlg").scrollTop = 0; }
     $("helpBtn").onclick = openHelp;
     $("helpClose").onclick = () => $("helpDlg").close();
     $("helpShare").onclick = async () => {
