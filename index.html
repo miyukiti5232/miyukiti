@@ -384,7 +384,7 @@
       <h2 id="dDate"></h2>
       <button class="small-btn" id="dNext">›</button>
     </div>
-    <label data-t="diaryLabel">日記（書きなおせます）</label>
+    <label data-t="diaryLabel">押したボタンから、日記を自動で作ります。指で書きなおすこともできます。</label>
     <textarea id="dText" rows="10"></textarea>
     <div class="read-row">
       <button class="small-btn" id="dRead" data-t="read">🔊 読む</button>
@@ -464,8 +464,8 @@
         delItem: w => "「" + w + "」のボタンを消しますか？",
         delCat: w => "「" + w + "」と、その中のボタンをすべて消しますか？",
         resetAsk: "追加・変更したボタンがすべて消えて、最初の状態にもどります。よろしいですか？",
-        diaryLabel: "日記（書きなおせます）", remake: "作りなおす", read: "🔊 読む", stop: "⏹ とめる", send: "📤 送る",
-        remakeAsk: "書きなおした文が消えて、押したボタンから作りなおします。よろしいですか？",
+        diaryLabel: "押したボタンから、日記を自動で作ります。指で書きなおすこともできます。", remake: "↩ 書きなおす前にもどす", read: "🔊 読む", stop: "⏹ とめる", send: "📤 送る",
+        remakeAsk: "書きなおした文を消して、自動で作った日記にもどします。よろしいですか？",
         shareUrl: "📤 アドレスを送る",
         shareText: "声で気持ちを伝えるアプリ「つたえるボタン」です。無料・登録なしで使えます。",
         date: d => (d.getMonth() + 1) + "月" + d.getDate() + "日（" + "日月火水木金土"[d.getDay()] + "）",
@@ -483,8 +483,8 @@
         delItem: w => "Delete the button \"" + w + "\"?",
         delCat: w => "Delete \"" + w + "\" and all buttons in it?",
         resetAsk: "All buttons you added or changed will be removed, and the app will go back to the start. OK?",
-        diaryLabel: "Diary (you can edit it)", remake: "Make again", read: "🔊 Read", stop: "⏹ Stop", send: "📤 Send",
-        remakeAsk: "Your edits will be removed, and the diary will be made again from the buttons. OK?",
+        diaryLabel: "The diary is made automatically from the buttons you tapped. You can also edit it.", remake: "↩ Undo my edits", read: "🔊 Read", stop: "⏹ Stop", send: "📤 Send",
+        remakeAsk: "Your edits will be removed, and the automatic diary will come back. OK?",
         shareUrl: "📤 Send the link",
         shareText: "\"Talk Buttons\" is an app that speaks your feelings out loud. Free, no sign-up needed.",
         date: d => d.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" }),
@@ -867,6 +867,11 @@
       $("dDate").textContent = t("date")(d);
       $("dNext").disabled = k >= dayKey(new Date());
       $("dText").value = day.text != null ? day.text : makeDiary(k);
+      showRemake();
+    }
+    // 「書きなおす前にもどす」は、書きなおしたときだけ出す
+    function showRemake() {
+      $("dRemake").style.visibility = getDay(diaryDay).text != null ? "visible" : "hidden";
     }
     function moveDay(n) {
       stopDiaryVoice();
@@ -876,10 +881,10 @@
       renderDiary();
     }
 
-    $("dText").oninput = () => { getDay(diaryDay).text = $("dText").value; saveDiary(); };
+    $("dText").oninput = () => { getDay(diaryDay).text = $("dText").value; saveDiary(); showRemake(); };
     $("dRemake").onclick = () => {
       const day = getDay(diaryDay);
-      if (day.text != null && !confirm(t("remakeAsk"))) return;
+      if (!confirm(t("remakeAsk"))) return;
       day.text = null;
       saveDiary(); renderDiary();
     };
