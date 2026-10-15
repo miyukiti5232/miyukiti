@@ -196,6 +196,40 @@
     .diary-head h2 { margin: 0; flex: 1; text-align: center; }
     .diary-head .small-btn { font-size: 22px; padding: 4px 14px; }
     .diary-head .small-btn:disabled, #dStop:disabled { opacity: .35; }
+    .stamp-label { font-size: 15px; color: var(--sub); margin: 10px 0 4px; }
+    .stamps { display: flex; gap: 6px; flex-wrap: wrap; }
+    .stamps button {
+      font-size: 28px; width: 50px; height: 50px; padding: 0;
+      border: 2px solid var(--line); border-radius: 12px; background: var(--card); cursor: pointer;
+    }
+    .stamps button.sel { border: 3px solid var(--accent); background: var(--accent-soft); }
+    .timeline {
+      display: flex; flex-wrap: wrap; gap: 6px; max-height: 180px; overflow-y: auto;
+      padding: 6px; border: 2px solid var(--line); border-radius: 12px; background: var(--bg);
+    }
+    .timeline .empty-note { color: var(--sub); font-size: 15px; padding: 6px; }
+    .tl {
+      display: flex; flex-direction: column; align-items: center; width: 72px;
+      background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 4px 2px;
+    }
+    .tl .tl-pic { font-size: 30px; line-height: 1.1; }
+    .tl .tl-time { font-size: 12px; color: var(--sub); }
+    .tl .tl-word { font-size: 12px; text-align: center; line-height: 1.2; word-break: break-all; }
+    .cal-head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+    .cal-head h2 { margin: 0; flex: 1; text-align: center; }
+    .cal-head .small-btn { font-size: 22px; padding: 4px 14px; }
+    .cal-head .small-btn:disabled { opacity: .3; }
+    .cal { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+    .cal .wd { text-align: center; font-size: 13px; color: var(--sub); }
+    .cal button {
+      aspect-ratio: 1; border: 1px solid var(--line); border-radius: 8px; background: var(--card);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      font-family: inherit; color: var(--text); padding: 0; cursor: pointer; font-size: 12px;
+    }
+    .cal button .cal-mood { font-size: 22px; line-height: 1; min-height: 22px; }
+    .cal button.today { border: 2px solid var(--accent); }
+    .cal button:disabled { opacity: .35; }
+    .cal-sum { text-align: center; font-size: 16px; margin-top: 10px; }
     .read-row { display: flex; gap: 8px; margin-top: 12px; }
     .read-row .small-btn { flex: 1; font-size: 20px; padding: 12px; }
     header .small-btn, header h1 { white-space: nowrap; }
@@ -314,7 +348,9 @@
 
     <h3>📖 日記</h3>
     <ul>
-      <li>その日に押したボタンから、日記を自動で作ります。</li>
+      <li>その日に押したボタンから、日記を自動で作ります。押したボタンの絵も、時間の順に並びます。</li>
+      <li>「きょうの きもち」と「てんき」のスタンプを押すと、日記に入ります。</li>
+      <li>「📅 カレンダー」で、毎日の気持ちを月ごとに見られます。</li>
       <li>「📤 送る」で、LINE などで家族に送れます。</li>
     </ul>
 
@@ -349,7 +385,9 @@
 
     <h3>📖 Diary</h3>
     <ul>
-      <li>A diary is made from the buttons you tapped that day.</li>
+      <li>A diary is made from the buttons you tapped that day. The pictures of the buttons are shown in time order.</li>
+      <li>Tap the "Today's feeling" and "Weather" stamps to add them to the diary.</li>
+      <li>Tap "📅 Calendar" to see your feelings for each day of the month.</li>
       <li>Tap "📤 Send" to share it with your family by LINE or other apps.</li>
     </ul>
 
@@ -384,16 +422,37 @@
       <h2 id="dDate"></h2>
       <button class="small-btn" id="dNext">›</button>
     </div>
+    <div class="stamp-label" data-t="moodLabel">きょうの きもち</div>
+    <div class="stamps" id="dMood"></div>
+    <div class="stamp-label" data-t="weatherLabel">てんき</div>
+    <div class="stamps" id="dWeather"></div>
+    <div class="stamp-label" data-t="timelineLabel">おしたボタン</div>
+    <div class="timeline" id="dTimeline"></div>
     <label data-t="diaryLabel">押したボタンから、日記を自動で作ります。指で書きなおすこともできます。</label>
-    <textarea id="dText" rows="10"></textarea>
+    <textarea id="dText" rows="7"></textarea>
     <div class="read-row">
       <button class="small-btn" id="dRead" data-t="read">🔊 読む</button>
       <button class="small-btn" id="dStop" data-t="stop" disabled>⏹ とめる</button>
     </div>
     <div class="row">
       <button class="small-btn left" id="dRemake" data-t="remake">作りなおす</button>
+      <button class="small-btn" id="dCal" data-t="calendar">📅 カレンダー</button>
       <button class="small-btn" id="dShare" data-t="send">📤 送る</button>
       <button class="small-btn primary" id="dClose" data-t="close">とじる</button>
+    </div>
+  </dialog>
+
+  <!-- カレンダー -->
+  <dialog id="calDlg">
+    <div class="cal-head">
+      <button class="small-btn" id="cPrev">‹</button>
+      <h2 id="cTitle"></h2>
+      <button class="small-btn" id="cNext">›</button>
+    </div>
+    <div class="cal" id="cGrid"></div>
+    <div class="cal-sum" id="cSum"></div>
+    <div class="row">
+      <button class="small-btn primary" id="cClose" data-t="close">とじる</button>
     </div>
   </dialog>
 
@@ -467,6 +526,13 @@
         diaryLabel: "押したボタンから、日記を自動で作ります。指で書きなおすこともできます。", remake: "↩ 書きなおす前にもどす", read: "🔊 読む", stop: "⏹ とめる", send: "📤 送る",
         remakeAsk: "書きなおした文を消して、自動で作った日記にもどします。よろしいですか？",
         shareUrl: "📤 アドレスを送る",
+        moodLabel: "きょうの きもち", weatherLabel: "てんき", timelineLabel: "おしたボタン",
+        noPress: "まだ ボタンを おしていません", calendar: "📅 カレンダー", record: "【きろく】",
+        moods: { "😄": "たのしい 一日でした。", "🙂": "まあまあ よい 一日でした。", "😐": "ふつうの 一日でした。", "😢": "かなしい ことが ありました。", "😠": "いやな ことが ありました。" },
+        weathers: { "☀️": "はれ", "⛅": "はれ ときどき くもり", "☁️": "くもり", "☔": "あめ", "⛄": "ゆき" },
+        weatherLine: w => "てんきは " + w + "でした。",
+        month: (y, m) => y + "年" + (m + 1) + "月", weekdays: "日月火水木金土",
+        moodSum: list => list.map(([e, n]) => e + " " + n + "日").join("　"), noMood: "きもちの スタンプは まだ ありません",
         shareText: "声で気持ちを伝えるアプリ「つたえるボタン」です。無料・登録なしで使えます。",
         date: d => (d.getMonth() + 1) + "月" + d.getDate() + "日（" + "日月火水木金土"[d.getDay()] + "）",
         diaryTitle: date => date + "の日記"
@@ -486,6 +552,13 @@
         diaryLabel: "The diary is made automatically from the buttons you tapped. You can also edit it.", remake: "↩ Undo my edits", read: "🔊 Read", stop: "⏹ Stop", send: "📤 Send",
         remakeAsk: "Your edits will be removed, and the automatic diary will come back. OK?",
         shareUrl: "📤 Send the link",
+        moodLabel: "Today's feeling", weatherLabel: "Weather", timelineLabel: "Buttons tapped",
+        noPress: "No buttons tapped yet", calendar: "📅 Calendar", record: "[Log]",
+        moods: { "😄": "It was a fun day.", "🙂": "It was a pretty good day.", "😐": "It was an ordinary day.", "😢": "Something sad happened.", "😠": "Something upsetting happened." },
+        weathers: { "☀️": "sunny", "⛅": "partly cloudy", "☁️": "cloudy", "☔": "rainy", "⛄": "snowy" },
+        weatherLine: w => "The weather was " + w + ".",
+        month: (y, m) => new Date(y, m, 1).toLocaleDateString("en-US", { year: "numeric", month: "long" }), weekdays: "SMTWTFS",
+        moodSum: list => list.map(([e, n]) => e + " " + n + (n > 1 ? " days" : " day")).join("　"), noMood: "No feeling stamps yet",
         shareText: "\"Talk Buttons\" is an app that speaks your feelings out loud. Free, no sign-up needed.",
         date: d => d.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" }),
         diaryTitle: date => "Diary — " + date
@@ -804,15 +877,27 @@
     // ボタンを押したことを記録
     function logPress(item) {
       const now = new Date();
-      getDay(dayKey(now)).log.push({ h: now.getHours(), word: item.word, cat: item.cat });
+      getDay(dayKey(now)).log.push({ h: now.getHours(), m: now.getMinutes(), word: item.word, cat: item.cat, pic: item.pic });
       saveDiary();
     }
+
+    // 天気と気持ちのスタンプから文を作る
+    function stampLines(day) {
+      const lines = [];
+      if (day.weather && t("weathers")[day.weather]) lines.push(t("weatherLine")(t("weathers")[day.weather]));
+      if (day.mood && t("moods")[day.mood]) lines.push(t("moods")[day.mood]);
+      return lines;
+    }
+    // 時刻を「8:05」の形に（前の記録には分が無いので「8時」）
+    const timeText = l => l.m == null ? (lang() === "en" ? l.h + ":00" : l.h + "時") : l.h + ":" + String(l.m).padStart(2, "0");
+    // 前の記録には絵が無いので、今のボタンから探す
+    const logPic = l => l.pic || ((data.items.find(i => i.word === l.word) || {}).pic) || "❓";
 
     // 押したボタンから日記の文を作る
     function makeDiary(k) {
       if (lang() === "en") return makeDiaryEn(k);
       const day = getDay(k);
-      const lines = [];
+      const lines = stampLines(day);
       const parts = [["あさ", h => h < 11], ["ひる", h => h >= 11 && h < 17], ["よる", h => h >= 17]];
       const total = {};
       parts.forEach(([name, test]) => {
@@ -826,7 +911,7 @@
         const list = words.map(w => "「" + w + "」" + (counts[w] > 1 ? "を" + counts[w] + "回" : "")).join("、");
         lines.push(name + "は、" + list + "と つたえました。");
       });
-      if (!lines.length) lines.push("きょうは ボタンを つかいませんでした。");
+      if (!day.log.length) lines.push("きょうは ボタンを つかいませんでした。");
       const feel = [...new Set(day.log.filter(l => l.cat === "c4").map(l => l.word))];
       if (feel.length) lines.push("きもちは、" + feel.map(w => "「" + w + "」").join("、") + "でした。");
       const top = Object.keys(total).sort((a, b) => total[b] - total[a])[0];
@@ -838,7 +923,7 @@
     // 英語の日記
     function makeDiaryEn(k) {
       const day = getDay(k);
-      const lines = [];
+      const lines = stampLines(day);
       const q = w => "\u201c" + w + "\u201d";
       const parts = [["In the morning", h => h < 11], ["In the afternoon", h => h >= 11 && h < 17], ["In the evening", h => h >= 17]];
       const total = {};
@@ -853,7 +938,7 @@
         const list = words.length > 1 ? words.slice(0, -1).join(", ") + " and " + words[words.length - 1] : words[0];
         lines.push(name + ", I said " + list + ".");
       });
-      if (!lines.length) lines.push("I didn't use the buttons today.");
+      if (!day.log.length) lines.push("I didn't use the buttons today.");
       const feel = [...new Set(day.log.filter(l => l.cat === "c4").map(l => l.word))];
       if (feel.length) lines.push("My feelings: " + feel.map(q).join(", ") + ".");
       const top = Object.keys(total).sort((a, b) => total[b] - total[a])[0];
@@ -868,6 +953,32 @@
       $("dNext").disabled = k >= dayKey(new Date());
       $("dText").value = day.text != null ? day.text : makeDiary(k);
       showRemake();
+      renderStamps("dMood", Object.keys(t("moods")), "mood");
+      renderStamps("dWeather", Object.keys(t("weathers")), "weather");
+      const tl = $("dTimeline");
+      tl.innerHTML = "";
+      if (!day.log.length) tl.appendChild(el("div", "empty-note", t("noPress")));
+      day.log.forEach(l => {
+        const c = el("div", "tl");
+        c.appendChild(picEl(logPic(l), "tl-pic", false));
+        c.appendChild(el("div", "tl-time", timeText(l)));
+        c.appendChild(el("div", "tl-word", l.word));
+        tl.appendChild(c);
+      });
+    }
+    // スタンプ（もう一度押すと取り消し）
+    function renderStamps(boxId, list, key) {
+      const box = $(boxId), day = getDay(diaryDay);
+      box.innerHTML = "";
+      list.forEach(e => {
+        const b = el("button", day[key] === e ? "sel" : "", e);
+        b.type = "button";
+        b.onclick = () => {
+          day[key] = day[key] === e ? "" : e;
+          saveDiary(); renderDiary();
+        };
+        box.appendChild(b);
+      });
     }
     // 「書きなおす前にもどす」は、書きなおしたときだけ出す
     function showRemake() {
@@ -905,7 +1016,9 @@
     $("dStop").onclick = stopDiaryVoice;
     // 日記を LINE などで送る
     $("dShare").onclick = async () => {
-      const text = t("diaryTitle")($("dDate").textContent) + "\n" + $("dText").value;
+      const day = getDay(diaryDay);
+      let text = t("diaryTitle")($("dDate").textContent) + "\n" + $("dText").value;
+      if (day.log.length) text += "\n\n" + t("record") + "\n" + day.log.map(l => timeText(l) + " " + (OWN_PICS[logPic(l)] ? "" : logPic(l) + " ") + l.word).join("\n");
       if (navigator.share) {
         try { await navigator.share({ text }); } catch (e) {}
         return;
@@ -916,6 +1029,48 @@
     $("dNext").onclick = () => moveDay(1);
     $("dClose").onclick = () => $("diaryDlg").close();
     $("diaryDlg").addEventListener("close", stopDiaryVoice);
+    // ===== カレンダー =====
+    let calY, calM;
+    function renderCal() {
+      $("cTitle").textContent = t("month")(calY, calM);
+      const now = new Date();
+      $("cNext").disabled = calY > now.getFullYear() || (calY === now.getFullYear() && calM >= now.getMonth());
+      const g = $("cGrid");
+      g.innerHTML = "";
+      [...t("weekdays")].forEach(w => g.appendChild(el("div", "wd", w)));
+      const first = new Date(calY, calM, 1).getDay();
+      for (let i = 0; i < first; i++) g.appendChild(el("div"));
+      const days = new Date(calY, calM + 1, 0).getDate();
+      const today = dayKey(now), counts = {};
+      for (let d = 1; d <= days; d++) {
+        const k = dayKey(new Date(calY, calM, d)), day = diary[k];
+        const b = el("button", k === today ? "today" : "");
+        b.appendChild(el("div", "cal-mood", day && day.mood ? day.mood : (day && day.log.length ? "・" : "")));
+        b.appendChild(el("div", null, d));
+        b.disabled = k > today;
+        b.onclick = () => { $("calDlg").close(); diaryDay = k; renderDiary(); };
+        if (day && day.mood) counts[day.mood] = (counts[day.mood] || 0) + 1;
+        g.appendChild(b);
+      }
+      const list = Object.keys(t("moods")).filter(e => counts[e]).map(e => [e, counts[e]]);
+      $("cSum").textContent = list.length ? t("moodSum")(list) : t("noMood");
+    }
+    function moveMonth(n) {
+      const d = new Date(calY, calM + n, 1);
+      calY = d.getFullYear(); calM = d.getMonth();
+      renderCal();
+    }
+    $("dCal").onclick = () => {
+      stopDiaryVoice();
+      const d = keyToDate(diaryDay);
+      calY = d.getFullYear(); calM = d.getMonth();
+      renderCal();
+      $("calDlg").showModal();
+    };
+    $("cPrev").onclick = () => moveMonth(-1);
+    $("cNext").onclick = () => moveMonth(1);
+    $("cClose").onclick = () => $("calDlg").close();
+
     $("diaryBtn").onclick = () => {
       diaryDay = dayKey(new Date());
       renderDiary();
