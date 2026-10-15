@@ -278,7 +278,6 @@
     <button class="small-btn" id="addCat" data-t="addCat">＋ カテゴリを追加</button>
     <button class="small-btn" id="editCat" data-t="editCat">このカテゴリを変更</button>
     <button class="small-btn" id="speedBtn">声の速さ：ふつう</button>
-    <button class="small-btn" id="langBtn">ことば：日本語</button>
     <button class="small-btn danger" id="resetAll" data-t="reset">最初の状態にもどす</button>
   </div>
 
@@ -344,6 +343,7 @@
     <ul>
       <li>右上の「せってい」を押すと、ボタンの追加・変更、なかまの追加、声の速さの変更ができます。</li>
       <li>おわったら「おわる」を押します。</li>
+      <li>上の「🌐」で、日本語と英語を切りかえられます。</li>
     </ul>
 
     <h3>📖 日記</h3>
@@ -379,7 +379,8 @@
 
     <h3>✏️ Make or change buttons</h3>
     <ul>
-      <li>Tap "Settings" at the top right to add or change buttons and groups, and to change the voice speed or language.</li>
+      <li>Tap "Settings" at the top right to add or change buttons and groups, and to change the voice speed.</li>
+      <li>Tap "🌐" at the top to switch between Japanese and English.</li>
       <li>Tap "Done" when you finish.</li>
     </ul>
 
@@ -742,7 +743,6 @@
       $("editToggle").textContent = editing ? t("done") : t("settings");
       $("editToggle").classList.toggle("on", editing);
       $("speedBtn").textContent = t("speed") + (t("speeds")[data.rate] || t("speeds")[1]);
-      $("langBtn").textContent = t("lang");
       renderTabs();
       renderGrid();
     }
@@ -851,7 +851,6 @@
     }
     $("pickJa").onclick = () => setLang("ja");
     $("pickEn").onclick = () => setLang("en");
-    $("langBtn").onclick = () => openLang();
     $("globeBtn").onclick = () => openLang();
     $("resetAll").onclick = () => {
       if (!confirm(t("resetAsk"))) return;
