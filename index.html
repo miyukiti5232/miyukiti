@@ -273,6 +273,7 @@
     <div class="row">
       <button class="small-btn left" id="dRemake">作りなおす</button>
       <button class="small-btn" id="dRead">🔊 読む</button>
+      <button class="small-btn" id="dShare">📤 送る</button>
       <button class="small-btn primary" id="dClose">とじる</button>
     </div>
   </dialog>
@@ -627,6 +628,15 @@
       saveDiary(); renderDiary();
     };
     $("dRead").onclick = () => speak($("dText").value.replace(/\n/g, " "));
+    // 日記を LINE などで送る
+    $("dShare").onclick = async () => {
+      const text = $("dDate").textContent + "の日記\n" + $("dText").value;
+      if (navigator.share) {
+        try { await navigator.share({ text }); } catch (e) {}
+        return;
+      }
+      window.open("https://line.me/R/share?text=" + encodeURIComponent(text), "_blank");
+    };
     $("dPrev").onclick = () => moveDay(-1);
     $("dNext").onclick = () => moveDay(1);
     $("dClose").onclick = () => $("diaryDlg").close();
