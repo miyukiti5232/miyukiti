@@ -459,7 +459,7 @@
         delItem: w => "「" + w + "」のボタンを消しますか？",
         delCat: w => "「" + w + "」と、その中のボタンをすべて消しますか？",
         resetAsk: "追加・変更したボタンがすべて消えて、最初の状態にもどります。よろしいですか？",
-        diaryLabel: "日記（書きなおせます）", remake: "作りなおす", read: "🔊 読む", send: "📤 送る",
+        diaryLabel: "日記（書きなおせます）", remake: "作りなおす", read: "🔊 読む", stop: "⏹ とめる", send: "📤 送る",
         remakeAsk: "書きなおした文が消えて、押したボタンから作りなおします。よろしいですか？",
         shareUrl: "📤 アドレスを送る",
         shareText: "声で気持ちを伝えるアプリ「つたえるボタン」です。無料・登録なしで使えます。",
@@ -478,7 +478,7 @@
         delItem: w => "Delete the button \"" + w + "\"?",
         delCat: w => "Delete \"" + w + "\" and all buttons in it?",
         resetAsk: "All buttons you added or changed will be removed, and the app will go back to the start. OK?",
-        diaryLabel: "Diary (you can edit it)", remake: "Make again", read: "🔊 Read", send: "📤 Send",
+        diaryLabel: "Diary (you can edit it)", remake: "Make again", read: "🔊 Read", stop: "⏹ Stop", send: "📤 Send",
         remakeAsk: "Your edits will be removed, and the diary will be made again from the buttons. OK?",
         shareUrl: "📤 Send the link",
         shareText: "\"Talk Buttons\" is an app that speaks your feelings out loud. Free, no sign-up needed.",
@@ -562,6 +562,7 @@
                    : voices.find(v => v.lang && v.lang.replace("_", "-").startsWith("en-US")) || voices.find(v => v.lang && v.lang.startsWith("en"));
       if (v) u.voice = v;
       speechSynthesis.speak(u);
+      return u;
     }
 
     // 絵文字に無い絵（「おむつ」と入れるとこの絵になる）
@@ -863,6 +864,7 @@
       $("dText").value = day.text != null ? day.text : makeDiary(k);
     }
     function moveDay(n) {
+      stopDiaryVoice();
       const d = keyToDate(diaryDay);
       d.setDate(d.getDate() + n);
       diaryDay = dayKey(d);
@@ -876,7 +878,21 @@
       day.text = null;
       saveDiary(); renderDiary();
     };
-    $("dRead").onclick = () => speak($("dText").value.replace(/\n/g, " "));
+    // 日記を読む／とめる（読んでいる間は「とめる」ボタンになる）
+    let diaryVoice = null;
+    function stopDiaryVoice() {
+      if (diaryVoice && "speechSynthesis" in window) speechSynthesis.cancel();
+      diaryVoice = null;
+      $("dRead").textContent = t("read");
+    }
+    $("dRead").onclick = () => {
+      if (diaryVoice) { stopDiaryVoice(); return; }
+      const u = speak($("dText").value.replace(/\n/g, " "));
+      if (!u) return;
+      diaryVoice = u;
+      $("dRead").textContent = t("stop");
+      u.onend = u.onerror = () => { if (diaryVoice === u) stopDiaryVoice(); };
+    };
     // 日記を LINE などで送る
     $("dShare").onclick = async () => {
       const text = t("diaryTitle")($("dDate").textContent) + "\n" + $("dText").value;
@@ -889,6 +905,7 @@
     $("dPrev").onclick = () => moveDay(-1);
     $("dNext").onclick = () => moveDay(1);
     $("dClose").onclick = () => $("diaryDlg").close();
+    $("diaryDlg").addEventListener("close", stopDiaryVoice);
     $("diaryBtn").onclick = () => {
       diaryDay = dayKey(new Date());
       renderDiary();
