@@ -199,6 +199,8 @@
     header .small-btn, header h1 { white-space: nowrap; }
     /* つかいかた */
     #helpBtn { width: 40px; padding: 8px 0; font-weight: bold; }
+    [data-lang] { display: none; }
+    html[lang="ja"] [data-lang="ja"], html[lang="en"] [data-lang="en"] { display: block; }
     #helpDlg h3 { font-size: 18px; margin: 20px 0 8px; color: var(--accent); }
     #helpDlg p, #helpDlg li { font-size: 17px; line-height: 1.7; margin: 4px 0; }
     #helpDlg ol, #helpDlg ul { padding-left: 1.4em; margin: 4px 0; }
@@ -215,10 +217,10 @@
 </head>
 <body>
   <header>
-    <h1>つたえるボタン</h1>
+    <h1 data-t="title">つたえるボタン</h1>
     <div class="say" id="say"></div>
     <div class="head-btns">
-      <button class="small-btn" id="diaryBtn">📖 日記</button>
+      <button class="small-btn" id="diaryBtn" data-t="diary">📖 日記</button>
       <button class="small-btn" id="editToggle">せってい</button>
       <button class="small-btn" id="helpBtn" aria-label="つかいかた">？</button>
     </div>
@@ -227,10 +229,11 @@
   <nav id="tabs"></nav>
 
   <div class="edit-bar">
-    <button class="small-btn" id="addCat">＋ カテゴリを追加</button>
-    <button class="small-btn" id="editCat">このカテゴリを変更</button>
+    <button class="small-btn" id="addCat" data-t="addCat">＋ カテゴリを追加</button>
+    <button class="small-btn" id="editCat" data-t="editCat">このカテゴリを変更</button>
     <button class="small-btn" id="speedBtn">声の速さ：ふつう</button>
-    <button class="small-btn danger" id="resetAll">最初の状態にもどす</button>
+    <button class="small-btn" id="langBtn">ことば：日本語</button>
+    <button class="small-btn danger" id="resetAll" data-t="reset">最初の状態にもどす</button>
   </div>
 
   <main>
@@ -240,38 +243,39 @@
   <!-- ボタンの追加・変更 -->
   <dialog id="itemDlg">
     <h2 id="itemTitle">ボタン</h2>
-    <label>話す言葉</label>
+    <label data-t="word">話す言葉</label>
     <input id="itemWord" maxlength="40">
-    <label>絵（下から選ぶか、入力）</label>
+    <label data-t="picPick">絵（下から選ぶか、入力）</label>
     <input id="itemPic" maxlength="12">
     <div class="pics" id="picList"></div>
-    <label>カテゴリ</label>
+    <label data-t="cat">カテゴリ</label>
     <select id="itemCat"></select>
     <div class="row">
-      <button class="small-btn danger left" id="itemDel">消す</button>
-      <button class="small-btn" id="itemTry">声を聞く</button>
-      <button class="small-btn" id="itemCancel">やめる</button>
-      <button class="small-btn primary" id="itemSave">保存</button>
+      <button class="small-btn danger left" id="itemDel" data-t="del">消す</button>
+      <button class="small-btn" id="itemTry" data-t="try">声を聞く</button>
+      <button class="small-btn" id="itemCancel" data-t="cancel">やめる</button>
+      <button class="small-btn primary" id="itemSave" data-t="save">保存</button>
     </div>
   </dialog>
 
   <!-- カテゴリの追加・変更 -->
   <dialog id="catDlg">
     <h2 id="catTitle">カテゴリ</h2>
-    <label>名前</label>
+    <label data-t="name">名前</label>
     <input id="catName" maxlength="12">
-    <label>絵</label>
+    <label data-t="pic">絵</label>
     <input id="catPic" maxlength="12">
     <div class="pics" id="catPicList"></div>
     <div class="row">
-      <button class="small-btn danger left" id="catDel">消す</button>
-      <button class="small-btn" id="catCancel">やめる</button>
-      <button class="small-btn primary" id="catSave">保存</button>
+      <button class="small-btn danger left" id="catDel" data-t="del">消す</button>
+      <button class="small-btn" id="catCancel" data-t="cancel">やめる</button>
+      <button class="small-btn primary" id="catSave" data-t="save">保存</button>
     </div>
   </dialog>
 
   <!-- つかいかた -->
   <dialog id="helpDlg">
+    <div data-lang="ja">
     <h2>つかいかた</h2>
     <p>「つたえるボタン」は、ボタンを押すと、スマホが声で代わりに話してくれるアプリです。無料で、登録もいりません。</p>
 
@@ -305,14 +309,50 @@
 
     <h3>🤝 ほかの人に教える</h3>
     <p>このQRコードをスマホのカメラで読みとると、アプリが開きます。</p>
+    </div>
+    <div data-lang="en">
+    <h2>How to use</h2>
+    <p>"Talk Buttons" speaks for you when you tap a button. It is free, and you don't need to sign up.</p>
+
+    <h3>🔊 Speak</h3>
+    <ol>
+      <li>Choose a group at the top, such as "Greetings" or "Toilet".</li>
+      <li>Tap a big button, and the phone says it out loud.</li>
+    </ol>
+
+    <h3>✏️ Make or change buttons</h3>
+    <ul>
+      <li>Tap "Settings" at the top right to add or change buttons and groups, and to change the voice speed or language.</li>
+      <li>Tap "Done" when you finish.</li>
+    </ul>
+
+    <h3>📖 Diary</h3>
+    <ul>
+      <li>A diary is made from the buttons you tapped that day.</li>
+      <li>Tap "📤 Send" to share it with your family by LINE or other apps.</li>
+    </ul>
+
+    <h3>🔒 Safe to use</h3>
+    <p>Your buttons and diary are saved only on this phone. They are never sent to anyone.</p>
+
+    <h3>📱 Add to Home Screen</h3>
+    <ul>
+      <li>iPhone: Safari "Share" → "Add to Home Screen"</li>
+      <li>Android: Chrome "︙" → "Add to Home screen"</li>
+      <li>The voice may not work inside the LINE app. Please open it in Safari or Chrome.</li>
+    </ul>
+
+    <h3>🤝 Tell others</h3>
+    <p>Scan this QR code with a phone camera to open the app.</p>
+    </div>
     <div class="qr-box">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 37 37" class="qr"><rect width="37" height="37" fill="#fff"/><path stroke="#000" d="M2 2.5h7m1 0h6m2 0h5m2 0h1m2 0h7m-33 1h1m5 0h1m1 0h1m1 0h3m3 0h3m1 0h5m1 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m2 0h3m1 0h2m1 0h1m3 0h1m1 0h2m2 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h6m2 0h1m2 0h1m1 0h4m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m2 0h2m2 0h1m1 0h1m1 0h1m1 0h1m1 0h1m2 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m4 0h1m2 0h1m1 0h5m1 0h1m1 0h1m1 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-25 1h4m3 0h1m1 0h2m1 0h1m1 0h3m-25 1h1m1 0h2m1 0h3m1 0h1m6 0h4m1 0h1m4 0h1m2 0h1m1 0h2m-31 1h2m5 0h2m1 0h1m3 0h1m1 0h2m1 0h3m2 0h2m1 0h4m-33 1h3m3 0h1m1 0h1m2 0h1m2 0h1m5 0h1m1 0h3m2 0h3m1 0h2m-33 1h6m1 0h1m1 0h1m2 0h4m8 0h1m2 0h1m1 0h1m-28 1h6m1 0h1m1 0h2m3 0h2m4 0h1m1 0h1m2 0h3m2 0h1m-31 1h2m5 0h2m2 0h4m1 0h2m2 0h1m1 0h1m2 0h1m1 0h3m-30 1h1m3 0h1m5 0h2m5 0h1m6 0h1m1 0h2m-30 1h1m2 0h2m5 0h1m1 0h1m2 0h2m2 0h3m2 0h3m2 0h2m-31 1h4m2 0h2m1 0h4m1 0h1m3 0h2m1 0h6m1 0h1m1 0h1m-31 1h2m1 0h2m2 0h1m2 0h1m1 0h1m1 0h3m1 0h1m2 0h6m1 0h2m1 0h2m-32 1h4m1 0h1m1 0h1m6 0h1m1 0h2m1 0h2m3 0h4m1 0h2m-30 1h3m4 0h2m4 0h1m1 0h1m1 0h2m2 0h1m1 0h1m2 0h1m2 0h2m-33 1h2m1 0h1m1 0h4m2 0h1m2 0h1m1 0h4m1 0h1m1 0h3m1 0h1m1 0h2m1 0h1m-33 1h1m2 0h1m1 0h1m2 0h3m1 0h1m3 0h1m1 0h3m1 0h2m1 0h2m2 0h2m1 0h1m-31 1h2m2 0h3m3 0h3m1 0h3m1 0h1m2 0h3m1 0h1m3 0h2m-32 1h1m1 0h2m2 0h1m1 0h1m1 0h2m2 0h2m6 0h2m4 0h1m1 0h2m-33 1h1m5 0h1m2 0h4m2 0h1m1 0h1m2 0h1m2 0h6m2 0h2m-25 1h1m1 0h3m2 0h2m2 0h2m1 0h1m1 0h1m3 0h2m-30 1h7m1 0h2m1 0h4m2 0h3m3 0h2m1 0h1m1 0h1m-29 1h1m5 0h1m1 0h1m4 0h1m1 0h2m2 0h1m1 0h1m1 0h2m3 0h5m-33 1h1m1 0h3m1 0h1m2 0h3m1 0h1m2 0h1m1 0h1m2 0h8m1 0h2m-32 1h1m1 0h3m1 0h1m1 0h1m3 0h1m2 0h1m1 0h2m1 0h1m1 0h2m3 0h1m2 0h1m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h1m4 0h2m1 0h1m1 0h3m3 0h2m1 0h1m-30 1h1m5 0h1m2 0h3m3 0h3m4 0h4m1 0h2m3 0h1m-33 1h7m1 0h2m1 0h1m1 0h1m3 0h7m2 0h1m1 0h1m1 0h1"/></svg>
 
       <div class="url">https://miyukiti5232.github.io/miyukiti/</div>
     </div>
     <div class="row">
-      <button class="small-btn left" id="helpShare">📤 アドレスを送る</button>
-      <button class="small-btn primary" id="helpClose">とじる</button>
+      <button class="small-btn left" id="helpShare" data-t="shareUrl">📤 アドレスを送る</button>
+      <button class="small-btn primary" id="helpClose" data-t="close">とじる</button>
     </div>
   </dialog>
 
@@ -323,13 +363,13 @@
       <h2 id="dDate"></h2>
       <button class="small-btn" id="dNext">›</button>
     </div>
-    <label>日記（書きなおせます）</label>
+    <label data-t="diaryLabel">日記（書きなおせます）</label>
     <textarea id="dText" rows="10"></textarea>
     <div class="row">
-      <button class="small-btn left" id="dRemake">作りなおす</button>
-      <button class="small-btn" id="dRead">🔊 読む</button>
-      <button class="small-btn" id="dShare">📤 送る</button>
-      <button class="small-btn primary" id="dClose">とじる</button>
+      <button class="small-btn left" id="dRemake" data-t="remake">作りなおす</button>
+      <button class="small-btn" id="dRead" data-t="read">🔊 読む</button>
+      <button class="small-btn" id="dShare" data-t="send">📤 送る</button>
+      <button class="small-btn primary" id="dClose" data-t="close">とじる</button>
     </div>
   </dialog>
 
@@ -376,12 +416,80 @@
 
     const PICS = ["🌅","☀️","🌙","👋","💐","⭕","❌","🚽","おむつ","🧷","🩲","🩳","👶","🚼","🧻","💧","🧼","🛁","🍙","🍚","🍞","🍎","🥤","🍵","😋","😄","😢","😨","😣","😠","😪","🤕","🥵","🥶","🤝","🏠","🚗","📺","🎵","📞","💊","🛏️","👕","❤️","❓","🎒","🙏","👍","👎","✋","🙋","🤲","🆗","🛑","⏰","🚶","🏃","🏫","🏥","🛒","🏞️","🚌","🚃","👨","👩","👦","👧","👴","👵","👨‍⚕️","🐶","🐱","🍜","🍛","🍳","🍌","🍓","🍪","🍦","🥛","🧃","🍽️","🥄","😊","😆","😐","😡","😭","🥱","🤢","🤒","😷","🦷","👂","👀","🧸","⚽","🎨","📖","🎮","🧩","📱","🎂","🪥","👟","🧥","🌂","🛋️","🔇","🔊","⏸️","😀","😁","🥰","😍","😎","🤗","🥳","😌","😴","😟","😕","😖","😫","😤","🥺","😳","🤔","🙄","😲","🤧","🤮","💩","🫶","👏","🙌","👌","✌️","👉","🤙","💪","🙆","🙇","💤","💦","🔥","✨","🌈","☔","⛄","🌸","🍀","🐰","🐻","🐼","🐸","🐟","🦖","🚑","🚒","🚓","✈️","🚲","🎡","🏊","🛝","🎁","🎈","🎉","🎤","🎹","🥁","📷","✏️","📝","🧦","👖","🧢","🩴","🍕","🍔","🍟","🍣","🍝","🍰","🍫","🍬","🍭","🍉","🍇","🍊","🍑","🍮","🍡","🧋","🍼","🧴","🪒","🩺","🌡️","💉","🩼","♿","🔋","💡"];
 
+    // ===== ことば（日本語／English） =====
+    const T = {
+      ja: {
+        title: "つたえるボタン", diary: "📖 日記", settings: "せってい", done: "おわる", help: "つかいかた",
+        addCat: "＋ カテゴリを追加", editCat: "このカテゴリを変更", reset: "最初の状態にもどす",
+        speed: "声の速さ：", speeds: { 0.5: "とてもゆっくり", 0.7: "ゆっくり", 1: "ふつう", 1.3: "はやい" },
+        lang: "ことば：日本語", speedTest: "この速さで話します", langTest: "日本語にしました",
+        word: "話す言葉", picPick: "絵（下から選ぶか、入力）", cat: "カテゴリ", name: "名前", pic: "絵",
+        del: "消す", try: "声を聞く", cancel: "やめる", save: "保存", close: "とじる",
+        editMark: "変更", addItem: "ボタンを追加", empty: "ボタンがありません。「せってい」から追加できます。",
+        itemAdd: "ボタンを追加", itemEdit: "ボタンを変更", catAdd: "カテゴリを追加", catEdit: "カテゴリを変更",
+        delItem: w => "「" + w + "」のボタンを消しますか？",
+        delCat: w => "「" + w + "」と、その中のボタンをすべて消しますか？",
+        resetAsk: "追加・変更したボタンがすべて消えて、最初の状態にもどります。よろしいですか？",
+        diaryLabel: "日記（書きなおせます）", remake: "作りなおす", read: "🔊 読む", send: "📤 送る",
+        remakeAsk: "書きなおした文が消えて、押したボタンから作りなおします。よろしいですか？",
+        shareUrl: "📤 アドレスを送る",
+        shareText: "声で気持ちを伝えるアプリ「つたえるボタン」です。無料・登録なしで使えます。",
+        date: d => (d.getMonth() + 1) + "月" + d.getDate() + "日（" + "日月火水木金土"[d.getDay()] + "）",
+        diaryTitle: date => date + "の日記"
+      },
+      en: {
+        title: "Talk Buttons", diary: "📖 Diary", settings: "Settings", done: "Done", help: "How to use",
+        addCat: "＋ Add group", editCat: "Edit this group", reset: "Reset all",
+        speed: "Speed: ", speeds: { 0.5: "very slow", 0.7: "slow", 1: "normal", 1.3: "fast" },
+        lang: "Language: English", speedTest: "I will speak at this speed.", langTest: "Changed to English.",
+        word: "Words to say", picPick: "Picture (choose below or type)", cat: "Group", name: "Name", pic: "Picture",
+        del: "Delete", try: "Listen", cancel: "Cancel", save: "Save", close: "Close",
+        editMark: "Edit", addItem: "Add button", empty: "No buttons yet. You can add them in \"Settings\".",
+        itemAdd: "Add button", itemEdit: "Edit button", catAdd: "Add group", catEdit: "Edit group",
+        delItem: w => "Delete the button \"" + w + "\"?",
+        delCat: w => "Delete \"" + w + "\" and all buttons in it?",
+        resetAsk: "All buttons you added or changed will be removed, and the app will go back to the start. OK?",
+        diaryLabel: "Diary (you can edit it)", remake: "Make again", read: "🔊 Read", send: "📤 Send",
+        remakeAsk: "Your edits will be removed, and the diary will be made again from the buttons. OK?",
+        shareUrl: "📤 Send the link",
+        shareText: "\"Talk Buttons\" is an app that speaks your feelings out loud. Free, no sign-up needed.",
+        date: d => d.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" }),
+        diaryTitle: date => "Diary — " + date
+      }
+    };
+    // 最初から入っているボタンとカテゴリの英語
+    const EN_WORDS = {
+      c1: "Greetings", c2: "Toilet", c3: "Food", c4: "Feelings", c5: "Body",
+      i1: "Good morning", i2: "Hello", i3: "Good night", i4: "Thank you", i5: "Yes", i6: "No",
+      i24: "I'm heading out", i7: "I need to use the toilet", i8: "Please change my diaper",
+      i9: "I want to wash my hands", i10: "I'm hungry", i11: "I'm thirsty", i12: "It's yummy",
+      i13: "No more, please", i14: "I'm happy", i15: "I'm sad", i16: "I'm scared",
+      i17: "I want to be alone", i18: "Please stay with me", i25: "I don't want to go",
+      i19: "It hurts", i20: "I'm hot", i21: "I'm cold", i22: "I'm sleepy", i23: "I'm tired"
+    };
+    function defaultWord(id, lang) {
+      if (lang === "en") return EN_WORDS[id];
+      const x = DEFAULT.cats.find(c => c.id === id) || DEFAULT.items.find(i => i.id === id);
+      return x && (x.name || x.word);
+    }
+    // 最初から入っているボタンのうち、変えていないものだけを訳す
+    function translateDefaults(d, from, to) {
+      d.cats.forEach(c => { if (defaultWord(c.id, from) && c.name === defaultWord(c.id, from)) c.name = defaultWord(c.id, to); });
+      d.items.forEach(i => { if (defaultWord(i.id, from) && i.word === defaultWord(i.id, from)) i.word = defaultWord(i.id, to); });
+      d.lang = to;
+      return d;
+    }
+    const lang = () => data.lang === "en" ? "en" : "ja";
+    const t = k => T[lang()][k];
+
     function load() {
       try {
         const s = JSON.parse(localStorage.getItem(KEY));
         if (s && Array.isArray(s.cats) && Array.isArray(s.items)) return addLaterItems(s);
       } catch (e) {}
-      return JSON.parse(JSON.stringify(DEFAULT));
+      const d = JSON.parse(JSON.stringify(DEFAULT));
+      const nav = (navigator.language || "ja").toLowerCase();
+      return nav.startsWith("ja") ? d : translateDefaults(d, "ja", "en");
     }
     // あとから足したボタン。もう使っている人の画面にも1回だけ足す
     const LATER_ITEMS = ["i24", "i25"];
@@ -392,7 +500,7 @@
         d.added.push(id);
         const item = DEFAULT.items.find(i => i.id === id);
         if (d.cats.some(c => c.id === item.cat) && !d.items.some(i => i.id === id)) {
-          d.items.push(Object.assign({}, item));
+          d.items.push(Object.assign({}, item, { word: defaultWord(id, d.lang === "en" ? "en" : "ja") }));
         }
       });
       return d;
@@ -416,10 +524,14 @@
       if (!("speechSynthesis" in window)) return;
       speechSynthesis.cancel();
       const u = new SpeechSynthesisUtterance(text);
-      u.lang = "ja-JP";
+      // 日本語の文字があれば日本語の声、なければ選んでいることばの声
+      const jp = /[\u3040-\u30ff\u4e00-\u9fff]/.test(text) || lang() === "ja";
+      u.lang = jp ? "ja-JP" : "en-US";
       u.rate = data.rate || 1;
-      const ja = speechSynthesis.getVoices().find(v => v.lang && v.lang.startsWith("ja"));
-      if (ja) u.voice = ja;
+      const voices = speechSynthesis.getVoices();
+      const v = jp ? voices.find(v => v.lang && v.lang.startsWith("ja"))
+                   : voices.find(v => v.lang && v.lang.replace("_", "-").startsWith("en-US")) || voices.find(v => v.lang && v.lang.startsWith("en"));
+      if (v) u.voice = v;
       speechSynthesis.speak(u);
     }
 
@@ -492,7 +604,7 @@
         pic.style.display = "block";
         b.appendChild(pic);
         b.appendChild(el("div", "word", item.word));
-        if (editing) b.appendChild(el("span", "edit-mark", "変更"));
+        if (editing) b.appendChild(el("span", "edit-mark", t("editMark")));
         b.onclick = () => {
           if (editing) { openItem(item); return; }
           speak(item.word);
@@ -505,20 +617,25 @@
       if (editing && current) {
         const add = el("button", "card add");
         add.appendChild(el("div", "pic", "＋"));
-        add.appendChild(el("div", "word", "ボタンを追加"));
+        add.appendChild(el("div", "word", t("addItem")));
         add.onclick = () => openItem(null);
         grid.appendChild(add);
       }
       if (!list.length && !editing) {
-        grid.appendChild(el("div", "empty", "ボタンがありません。「せってい」から追加できます。"));
+        grid.appendChild(el("div", "empty", t("empty")));
       }
     }
 
     function render() {
       document.body.classList.toggle("editing", editing);
-      $("editToggle").textContent = editing ? "おわる" : "せってい";
+      document.documentElement.lang = lang();
+      document.title = t("title");
+      document.querySelectorAll("[data-t]").forEach(e => { e.textContent = t(e.dataset.t); });
+      $("helpBtn").setAttribute("aria-label", t("help"));
+      $("editToggle").textContent = editing ? t("done") : t("settings");
       $("editToggle").classList.toggle("on", editing);
-      $("speedBtn").textContent = "声の速さ：" + ({0.5: "とてもゆっくり", 0.7: "ゆっくり", 1: "ふつう", 1.3: "はやい"}[data.rate] || "ふつう");
+      $("speedBtn").textContent = t("speed") + (t("speeds")[data.rate] || t("speeds")[1]);
+      $("langBtn").textContent = t("lang");
       renderTabs();
       renderGrid();
     }
@@ -526,7 +643,7 @@
     // ボタンの追加・変更
     function openItem(item) {
       editingItem = item;
-      $("itemTitle").textContent = item ? "ボタンを変更" : "ボタンを追加";
+      $("itemTitle").textContent = item ? t("itemEdit") : t("itemAdd");
       $("itemWord").value = item ? item.word : "";
       $("itemPic").value = item ? item.pic : "❓";
       $("itemDel").style.display = item ? "" : "none";
@@ -567,7 +684,7 @@
       save(); $("itemDlg").close(); render();
     };
     $("itemDel").onclick = () => {
-      if (!editingItem || !confirm("「" + editingItem.word + "」のボタンを消しますか？")) return;
+      if (!editingItem || !confirm(t("delItem")(editingItem.word))) return;
       data.items = data.items.filter(i => i !== editingItem);
       save(); $("itemDlg").close(); render();
     };
@@ -575,7 +692,7 @@
     // カテゴリの追加・変更
     function openCat(cat) {
       editingCat = cat;
-      $("catTitle").textContent = cat ? "カテゴリを変更" : "カテゴリを追加";
+      $("catTitle").textContent = cat ? t("catEdit") : t("catAdd");
       $("catName").value = cat ? cat.name : "";
       $("catPic").value = cat ? cat.pic : "⭐";
       $("catDel").style.display = cat ? "" : "none";
@@ -594,7 +711,7 @@
       save(); $("catDlg").close(); render();
     };
     $("catDel").onclick = () => {
-      if (!editingCat || !confirm("「" + editingCat.name + "」と、その中のボタンをすべて消しますか？")) return;
+      if (!editingCat || !confirm(t("delCat")(editingCat.name))) return;
       data.items = data.items.filter(i => i.cat !== editingCat.id);
       data.cats = data.cats.filter(c => c !== editingCat);
       current = data.cats[0] ? data.cats[0].id : null;
@@ -605,11 +722,17 @@
       const order = [0.5, 0.7, 1, 1.3];
       data.rate = order[(order.indexOf(data.rate) + 1) % order.length];
       save(); render();
-      speak("この速さで話します");
+      speak(t("speedTest"));
+    };
+    $("langBtn").onclick = () => {
+      translateDefaults(data, lang(), lang() === "ja" ? "en" : "ja");
+      save(); render();
+      speak(t("langTest"));
     };
     $("resetAll").onclick = () => {
-      if (!confirm("追加・変更したボタンがすべて消えて、最初の状態にもどります。よろしいですか？")) return;
-      data = JSON.parse(JSON.stringify(DEFAULT));
+      if (!confirm(t("resetAsk"))) return;
+      const keep = lang();
+      data = translateDefaults(JSON.parse(JSON.stringify(DEFAULT)), "ja", keep);
       current = data.cats[0].id;
       save(); render();
     };
@@ -638,6 +761,7 @@
 
     // 押したボタンから日記の文を作る
     function makeDiary(k) {
+      if (lang() === "en") return makeDiaryEn(k);
       const day = getDay(k);
       const lines = [];
       const parts = [["あさ", h => h < 11], ["ひる", h => h >= 11 && h < 17], ["よる", h => h >= 17]];
@@ -662,9 +786,36 @@
       return lines.join("\n");
     }
 
+    // 英語の日記
+    function makeDiaryEn(k) {
+      const day = getDay(k);
+      const lines = [];
+      const q = w => "\u201c" + w + "\u201d";
+      const parts = [["In the morning", h => h < 11], ["In the afternoon", h => h >= 11 && h < 17], ["In the evening", h => h >= 17]];
+      const total = {};
+      parts.forEach(([name, test]) => {
+        const counts = {};
+        day.log.filter(l => test(l.h)).forEach(l => {
+          counts[l.word] = (counts[l.word] || 0) + 1;
+          total[l.word] = (total[l.word] || 0) + 1;
+        });
+        const words = Object.keys(counts).map(w => q(w) + (counts[w] > 1 ? " (" + counts[w] + " times)" : ""));
+        if (!words.length) return;
+        const list = words.length > 1 ? words.slice(0, -1).join(", ") + " and " + words[words.length - 1] : words[0];
+        lines.push(name + ", I said " + list + ".");
+      });
+      if (!lines.length) lines.push("I didn't use the buttons today.");
+      const feel = [...new Set(day.log.filter(l => l.cat === "c4").map(l => l.word))];
+      if (feel.length) lines.push("My feelings: " + feel.map(q).join(", ") + ".");
+      const top = Object.keys(total).sort((a, b) => total[b] - total[a])[0];
+      if (top && total[top] > 1) lines.push("What I said most was " + q(top) + ".");
+      lines.push("Great job today!");
+      return lines.join("\n");
+    }
+
     function renderDiary() {
       const k = diaryDay, day = getDay(k), d = keyToDate(k);
-      $("dDate").textContent = (d.getMonth() + 1) + "月" + d.getDate() + "日（" + "日月火水木金土"[d.getDay()] + "）";
+      $("dDate").textContent = t("date")(d);
       $("dNext").disabled = k >= dayKey(new Date());
       $("dText").value = day.text != null ? day.text : makeDiary(k);
     }
@@ -678,14 +829,14 @@
     $("dText").oninput = () => { getDay(diaryDay).text = $("dText").value; saveDiary(); };
     $("dRemake").onclick = () => {
       const day = getDay(diaryDay);
-      if (day.text != null && !confirm("書きなおした文が消えて、押したボタンから作りなおします。よろしいですか？")) return;
+      if (day.text != null && !confirm(t("remakeAsk"))) return;
       day.text = null;
       saveDiary(); renderDiary();
     };
     $("dRead").onclick = () => speak($("dText").value.replace(/\n/g, " "));
     // 日記を LINE などで送る
     $("dShare").onclick = async () => {
-      const text = $("dDate").textContent + "の日記\n" + $("dText").value;
+      const text = t("diaryTitle")($("dDate").textContent) + "\n" + $("dText").value;
       if (navigator.share) {
         try { await navigator.share({ text }); } catch (e) {}
         return;
@@ -709,7 +860,7 @@
     $("helpBtn").onclick = openHelp;
     $("helpClose").onclick = () => $("helpDlg").close();
     $("helpShare").onclick = async () => {
-      const text = "声で気持ちを伝えるアプリ「つたえるボタン」です。無料・登録なしで使えます。\n" + APP_URL;
+      const text = t("shareText") + "\n" + APP_URL;
       if (navigator.share) {
         try { await navigator.share({ text }); } catch (e) {}
         return;
