@@ -195,7 +195,9 @@
     .diary-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 12px; }
     .diary-head h2 { margin: 0; flex: 1; text-align: center; }
     .diary-head .small-btn { font-size: 22px; padding: 4px 14px; }
-    .diary-head .small-btn:disabled { opacity: .3; }
+    .diary-head .small-btn:disabled, #dStop:disabled { opacity: .35; }
+    .read-row { display: flex; gap: 8px; margin-top: 12px; }
+    .read-row .small-btn { flex: 1; font-size: 20px; padding: 12px; }
     header .small-btn, header h1 { white-space: nowrap; }
     /* つかいかた */
     #helpBtn, #globeBtn { width: 40px; padding: 8px 0; font-weight: bold; }
@@ -384,9 +386,12 @@
     </div>
     <label data-t="diaryLabel">日記（書きなおせます）</label>
     <textarea id="dText" rows="10"></textarea>
+    <div class="read-row">
+      <button class="small-btn" id="dRead" data-t="read">🔊 読む</button>
+      <button class="small-btn" id="dStop" data-t="stop" disabled>⏹ とめる</button>
+    </div>
     <div class="row">
       <button class="small-btn left" id="dRemake" data-t="remake">作りなおす</button>
-      <button class="small-btn" id="dRead" data-t="read">🔊 読む</button>
       <button class="small-btn" id="dShare" data-t="send">📤 送る</button>
       <button class="small-btn primary" id="dClose" data-t="close">とじる</button>
     </div>
@@ -878,21 +883,21 @@
       day.text = null;
       saveDiary(); renderDiary();
     };
-    // 日記を読む／とめる（読んでいる間は「とめる」ボタンになる）
+    // 日記を読む・とめる（「とめる」は読んでいる間だけ押せる）
     let diaryVoice = null;
     function stopDiaryVoice() {
       if (diaryVoice && "speechSynthesis" in window) speechSynthesis.cancel();
       diaryVoice = null;
-      $("dRead").textContent = t("read");
+      $("dStop").disabled = true;
     }
     $("dRead").onclick = () => {
-      if (diaryVoice) { stopDiaryVoice(); return; }
       const u = speak($("dText").value.replace(/\n/g, " "));
       if (!u) return;
       diaryVoice = u;
-      $("dRead").textContent = t("stop");
-      u.onend = u.onerror = () => { if (diaryVoice === u) stopDiaryVoice(); };
+      $("dStop").disabled = false;
+      u.onend = u.onerror = () => { if (diaryVoice === u) { diaryVoice = null; $("dStop").disabled = true; } };
     };
+    $("dStop").onclick = stopDiaryVoice;
     // 日記を LINE などで送る
     $("dShare").onclick = async () => {
       const text = t("diaryTitle")($("dDate").textContent) + "\n" + $("dText").value;
