@@ -374,6 +374,16 @@
   </dialog>
 
   <script>
+    // LINE の中で開いたときは、声が出るように Safari／Chrome で開きなおす
+    (() => {
+      const ua = navigator.userAgent;
+      if (/ Line\//i.test(ua) && !/openExternalBrowser=1/.test(location.search)) {
+        const u = new URL(location.href);
+        u.searchParams.set("openExternalBrowser", "1");
+        location.replace(u.toString());
+      }
+    })();
+
     const KEY = "tsutaeru-button-v1";
 
     const DEFAULT = {
