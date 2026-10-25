@@ -257,6 +257,11 @@
     #helpDlg ol, #helpDlg ul { padding-left: 1.4em; margin: 4px 0; }
     .qr-box { text-align: center; margin-top: 8px; }
     .qr { width: 200px; height: 200px; display: block; margin: 0 auto 8px; }
+    .terms-link { text-align: center; margin-top: 16px; }
+    #termsDlg h3 { font-size: 18px; margin: 18px 0 6px; color: var(--accent); }
+    #termsDlg p { font-size: 17px; line-height: 1.8; margin: 4px 0; }
+    #termsDlg .terms-lead { background: var(--accent-soft); border-radius: 12px; padding: 12px 14px; }
+    #termsDlg .terms-end { text-align: center; font-weight: bold; margin-top: 20px; }
     #helpDlg .credit { font-size: 13px; color: var(--sub); text-align: center; margin-top: 16px; }
     #helpDlg .credit a { color: var(--sub); }
     #helpDlg .credit span[data-lang] { display: none; }
@@ -420,12 +425,74 @@
 
       <div class="url">https://miyukiti5232.github.io/miyukiti/</div>
     </div>
+    <div class="terms-link"><button class="small-btn" id="termsBtn" data-t="terms">🤝 みんなの やくそく</button></div>
     <p class="credit">
       <span data-lang="ja">動く絵文字：</span><span data-lang="en">Animated emoji: </span>Google「<a href="https://googlefonts.github.io/noto-emoji-animation/" target="_blank" rel="noopener">Noto Emoji</a>」（<a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>）
     </p>
     <div class="row">
       <button class="small-btn left" id="helpShare" data-t="shareUrl">📤 アドレスを送る</button>
       <button class="small-btn primary" id="helpClose" data-t="close">とじる</button>
+    </div>
+  </dialog>
+
+  <!-- みんなの やくそく（規約） -->
+  <dialog id="termsDlg">
+    <div data-lang="ja">
+    <h2>🤝 みんなの やくそく</h2>
+    <p class="terms-lead">「つたえるボタン」は、「つたえたい」きもちを、そっと手伝うために生まれました。みんなが安心して、やさしい気持ちで使えるように、いくつかの「やくそく」をまとめました。</p>
+
+    <h3>1. だれでも、むりょうで使えます</h3>
+    <p>おかねは かかりません。登録もいりません。おうちでも、学校でも、施設でも、自由に使ってください。</p>
+
+    <h3>2. あなたの ことばは、あなたの ものです</h3>
+    <p>作ったボタンや日記は、つかっている機械の中だけに しまわれます。わたしたちが見たり、集めたり、だれかに わたしたりすることは ありません。</p>
+
+    <h3>3. どんな ことばも、たいせつな ことばです</h3>
+    <p>「いや」「いきたくない」「ひとりにしてほしい」も、大切な気持ちです。まわりの人は、どうか急かさず、笑わず、さいごまで受けとめてください。</p>
+
+    <h3>4. ほかの人の きもちも、たいせつに</h3>
+    <p>人を きずつける ことばを ボタンにしたり、ほかの人の日記を だまって見たり、送ったりしないでください。日記を送るときは、本人の「いいよ」を大切にしてください。</p>
+
+    <h3>5. こまったときは、人の手を</h3>
+    <p>スマホは、電池が切れたり、音が出なかったりすることがあります。体のぐあいが悪いときや、あぶないときは、このアプリだけに たよらず、まわりの人や お医者さんに すぐ知らせてください。</p>
+
+    <h3>6. かんぺきでは ないけれど</h3>
+    <p>心をこめて作っていますが、うまく動かないときや、ボタンや日記が消えてしまうことも あるかもしれません。そのことで困ったことが起きても、作った人は 責任を おうことが できません。ごめんなさい。大切な日記は、ときどき送って とっておくと 安心です。</p>
+
+    <h3>7. いっしょに そだてていきます</h3>
+    <p>このやくそくや アプリは、よりよくするために 変わることが あります。「こうだったら いいな」が あったら、ぜひ おしえてください。</p>
+
+    <p class="terms-end">あなたの「つたえたい」が、だれかに とどきますように。💐</p>
+    </div>
+    <div data-lang="en">
+    <h2>🤝 Our Promises</h2>
+    <p class="terms-lead">"Talk Buttons" was made to gently help people share what they want to say. Here are a few promises, so that everyone can use it safely and kindly.</p>
+
+    <h3>1. Free for everyone</h3>
+    <p>It costs nothing, and you don't need to sign up. Please use it freely at home, at school, or anywhere.</p>
+
+    <h3>2. Your words belong to you</h3>
+    <p>Your buttons and diary are kept only on this device. We never see, collect, or share them.</p>
+
+    <h3>3. Every word matters</h3>
+    <p>"No," "I don't want to go," and "I want to be alone" are important feelings too. To the people around: please don't rush or laugh — listen until the end.</p>
+
+    <h3>4. Care for others' feelings, too</h3>
+    <p>Please don't make buttons with hurtful words, and don't look at or send someone else's diary without asking. When sending a diary, respect the person's "OK."</p>
+
+    <h3>5. When in trouble, reach for a person</h3>
+    <p>Phones can run out of battery or lose sound. If someone feels sick or is in danger, don't rely only on this app — tell someone nearby or a doctor right away.</p>
+
+    <h3>6. Not perfect, but made with care</h3>
+    <p>We made this with care, but it may not always work well, and buttons or diaries may sometimes be lost. We are sorry, but the maker cannot take responsibility for any trouble this may cause. Sending your diary now and then is a good way to keep it safe.</p>
+
+    <h3>7. Growing together</h3>
+    <p>These promises and the app may change to become better. If you have an idea, please tell us.</p>
+
+    <p class="terms-end">May your words reach someone who cares. 💐</p>
+    </div>
+    <div class="row">
+      <button class="small-btn primary" id="termsClose" data-t="close">とじる</button>
     </div>
   </dialog>
 
@@ -539,7 +606,7 @@
         resetAsk: "追加・変更したボタンがすべて消えて、最初の状態にもどります。よろしいですか？",
         diaryLabel: "押したボタンから、日記を自動で作ります。指で書きなおすこともできます。", remake: "↩ 書きなおす前にもどす", read: "🔊 読む", stop: "⏹ とめる", send: "📤 送る",
         remakeAsk: "書きなおした文を消して、自動で作った日記にもどします。よろしいですか？",
-        shareUrl: "📤 アドレスを送る",
+        shareUrl: "📤 アドレスを送る", terms: "🤝 みんなの やくそく",
         moodLabel: "きょうの きもち", weatherLabel: "てんき", timelineLabel: "おしたボタン",
         noPress: "まだ ボタンを おしていません", calendar: "📅 カレンダー", record: "【きろく】",
         moods: { "😄": "たのしい 一日でした。", "🙂": "まあまあ よい 一日でした。", "😐": "ふつうの 一日でした。", "😢": "かなしい ことが ありました。", "😠": "いやな ことが ありました。" },
@@ -565,7 +632,7 @@
         resetAsk: "All buttons you added or changed will be removed, and the app will go back to the start. OK?",
         diaryLabel: "The diary is made automatically from the buttons you tapped. You can also edit it.", remake: "↩ Undo my edits", read: "🔊 Read", stop: "⏹ Stop", send: "📤 Send",
         remakeAsk: "Your edits will be removed, and the automatic diary will come back. OK?",
-        shareUrl: "📤 Send the link",
+        shareUrl: "📤 Send the link", terms: "🤝 Our Promises",
         moodLabel: "Today's feeling", weatherLabel: "Weather", timelineLabel: "Buttons tapped",
         noPress: "No buttons tapped yet", calendar: "📅 Calendar", record: "[Log]",
         moods: { "😄": "It was a fun day.", "🙂": "It was a pretty good day.", "😐": "It was an ordinary day.", "😢": "Something sad happened.", "😠": "Something upsetting happened." },
@@ -1098,6 +1165,8 @@
     function openHelp() { $("helpDlg").showModal(); document.activeElement.blur(); $("helpDlg").scrollTop = 0; }
     $("helpBtn").onclick = openHelp;
     $("helpClose").onclick = () => $("helpDlg").close();
+    $("termsBtn").onclick = () => { $("termsDlg").showModal(); document.activeElement.blur(); $("termsDlg").scrollTop = 0; };
+    $("termsClose").onclick = () => $("termsDlg").close();
     $("helpShare").onclick = async () => {
       const text = t("shareText") + "\n" + APP_URL;
       if (navigator.share) {
