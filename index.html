@@ -257,6 +257,15 @@
     #helpDlg ol, #helpDlg ul { padding-left: 1.4em; margin: 4px 0; }
     .qr-box { text-align: center; margin-top: 8px; }
     .qr { width: 200px; height: 200px; display: block; margin: 0 auto 8px; }
+    #gateDlg h2 { font-size: 20px; text-align: center; }
+    .gate-q { font-size: 34px; font-weight: bold; text-align: center; margin: 12px 0; }
+    .gate-choices { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .gate-choices button {
+      font-size: 28px; padding: 14px 0; border-radius: 14px;
+      border: 3px solid var(--line); background: var(--card); color: var(--text);
+      font-family: inherit; cursor: pointer;
+    }
+    .gate-msg { text-align: center; color: var(--accent); min-height: 1.6em; font-size: 17px; margin: 10px 0 0; }
     .terms-link { text-align: center; margin-top: 16px; }
     #termsDlg h3 { font-size: 18px; margin: 18px 0 6px; color: var(--accent); }
     #termsDlg p { font-size: 17px; line-height: 1.8; margin: 4px 0; }
@@ -496,6 +505,17 @@
     </div>
   </dialog>
 
+  <!-- おとなの かくにん（送る前） -->
+  <dialog id="gateDlg">
+    <h2 data-t="gateTitle">🧑‍🤝‍🧑 おうちの人と いっしょに してね</h2>
+    <p class="gate-q" id="gateQ"></p>
+    <div class="gate-choices" id="gateChoices"></div>
+    <p class="gate-msg" id="gateMsg"></p>
+    <div class="row">
+      <button class="small-btn" id="gateCancel" data-t="cancel">やめる</button>
+    </div>
+  </dialog>
+
   <!-- 日記 -->
   <dialog id="diaryDlg">
     <div class="diary-head">
@@ -607,6 +627,7 @@
         diaryLabel: "押したボタンから、日記を自動で作ります。指で書きなおすこともできます。", remake: "↩ 書きなおす前にもどす", read: "🔊 読む", stop: "⏹ とめる", send: "📤 送る",
         remakeAsk: "書きなおした文を消して、自動で作った日記にもどします。よろしいですか？",
         shareUrl: "📤 アドレスを送る", terms: "🤝 みんなの やくそく",
+        gateTitle: "🧑‍🤝‍🧑 おうちの人と いっしょに してね", gateQ: (a, b) => a + " ＋ " + b + " は？", gateRetry: "もういちど やってみてね 🙂",
         moodLabel: "きょうの きもち", weatherLabel: "てんき", timelineLabel: "おしたボタン",
         noPress: "まだ ボタンを おしていません", calendar: "📅 カレンダー", record: "【きろく】",
         moods: { "😄": "たのしい 一日でした。", "🙂": "まあまあ よい 一日でした。", "😐": "ふつうの 一日でした。", "😢": "かなしい ことが ありました。", "😠": "いやな ことが ありました。" },
@@ -633,6 +654,7 @@
         diaryLabel: "The diary is made automatically from the buttons you tapped. You can also edit it.", remake: "↩ Undo my edits", read: "🔊 Read", stop: "⏹ Stop", send: "📤 Send",
         remakeAsk: "Your edits will be removed, and the automatic diary will come back. OK?",
         shareUrl: "📤 Send the link", terms: "🤝 Our Promises",
+        gateTitle: "🧑‍🤝‍🧑 Please do this with a grown-up", gateQ: (a, b) => a + " + " + b + " = ?", gateRetry: "Let's try again 🙂",
         moodLabel: "Today's feeling", weatherLabel: "Weather", timelineLabel: "Buttons tapped",
         noPress: "No buttons tapped yet", calendar: "📅 Calendar", record: "[Log]",
         moods: { "😄": "It was a fun day.", "🙂": "It was a pretty good day.", "😐": "It was an ordinary day.", "😢": "Something sad happened.", "😠": "Something upsetting happened." },
@@ -1095,16 +1117,53 @@
       u.onend = u.onerror = () => { if (diaryVoice === u) { diaryVoice = null; $("dStop").disabled = true; } };
     };
     $("dStop").onclick = stopDiaryVoice;
+    // LINE などで送る（送る先を選ぶ画面を出す）
+    function shareText(text) {
+      if (navigator.share) { navigator.share({ text }).catch(() => {}); return; }
+      window.open("https://line.me/R/share?text=" + encodeURIComponent(text), "_blank");
+    }
+
+    // おとなの かくにん：たし算に正しく答えたときだけ then を実行する
+    let gateThen = null;
+    function adultGate(then) {
+      gateThen = then;
+      $("gateMsg").textContent = "";
+      newGateQuestion();
+      $("gateDlg").showModal();
+      document.activeElement.blur();
+    }
+    function newGateQuestion() {
+      // 大人ならすぐ答えられて、子どもには少しむずかしい「2けた ＋ 1けた」
+      const a = 11 + Math.floor(Math.random() * 9), b = 3 + Math.floor(Math.random() * 7), ans = a + b;
+      $("gateQ").textContent = t("gateQ")(a, b);
+      const set = new Set([ans]);
+      while (set.size < 4) { const x = ans + Math.floor(Math.random() * 7) - 3; if (x > 0) set.add(x); }
+      const box = $("gateChoices");
+      box.innerHTML = "";
+      [...set].sort((x, y) => x - y).forEach(n => {
+        const b2 = el("button", null, n);
+        b2.type = "button";
+        b2.onclick = () => {
+          if (n === ans) {
+            $("gateDlg").close();
+            const f = gateThen; gateThen = null;
+            if (f) f();   // 押した流れのまま送る画面を出す
+          } else {
+            $("gateMsg").textContent = t("gateRetry");
+            newGateQuestion();
+          }
+        };
+        box.appendChild(b2);
+      });
+    }
+    $("gateCancel").onclick = () => { gateThen = null; $("gateDlg").close(); };
+
     // 日記を LINE などで送る
-    $("dShare").onclick = async () => {
+    $("dShare").onclick = () => {
       const day = getDay(diaryDay);
       let text = t("diaryTitle")($("dDate").textContent) + "\n" + $("dText").value;
       if (day.log.length) text += "\n\n" + t("record") + "\n" + day.log.map(l => timeText(l) + " " + (OWN_PICS[logPic(l)] ? "" : logPic(l) + " ") + l.word).join("\n");
-      if (navigator.share) {
-        try { await navigator.share({ text }); } catch (e) {}
-        return;
-      }
-      window.open("https://line.me/R/share?text=" + encodeURIComponent(text), "_blank");
+      adultGate(() => shareText(text));
     };
     $("dPrev").onclick = () => moveDay(-1);
     $("dNext").onclick = () => moveDay(1);
@@ -1167,14 +1226,7 @@
     $("helpClose").onclick = () => $("helpDlg").close();
     $("termsBtn").onclick = () => { $("termsDlg").showModal(); document.activeElement.blur(); $("termsDlg").scrollTop = 0; };
     $("termsClose").onclick = () => $("termsDlg").close();
-    $("helpShare").onclick = async () => {
-      const text = t("shareText") + "\n" + APP_URL;
-      if (navigator.share) {
-        try { await navigator.share({ text }); } catch (e) {}
-        return;
-      }
-      window.open("https://line.me/R/share?text=" + encodeURIComponent(text), "_blank");
-    };
+    $("helpShare").onclick = () => adultGate(() => shareText(t("shareText") + "\n" + APP_URL));
 
     if ("speechSynthesis" in window) speechSynthesis.getVoices();
     render();
